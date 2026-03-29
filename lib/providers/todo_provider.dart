@@ -15,22 +15,26 @@ enum TodoFilter {
 
 class TodoProvider extends ChangeNotifier {
   final List<TodoItem> _items = <TodoItem>[];
+  final List<String> _categories =
+      List<String>.from(AppConstants.defaultCategories);
   final Set<String> _busyItemIds = <String>{};
 
   bool _isLoading = true;
   bool _isAdding = false;
   TodoFilter _selectedFilter = TodoFilter.all;
-  TodoCategory _draftCategory = TodoCategory.personal;
+  String _draftCategory = AppConstants.defaultCategories.first;
 
   UnmodifiableListView<TodoItem> get items =>
       UnmodifiableListView<TodoItem>(_items);
+  UnmodifiableListView<String> get categories =>
+      UnmodifiableListView<String>(_categories);
   UnmodifiableSetView<String> get busyItemIds =>
       UnmodifiableSetView<String>(_busyItemIds);
 
   bool get isLoading => _isLoading;
   bool get isAdding => _isAdding;
   TodoFilter get selectedFilter => _selectedFilter;
-  TodoCategory get draftCategory => _draftCategory;
+  String get draftCategory => _draftCategory;
 
   int get activeCount =>
       _items.where((TodoItem item) => !item.isCompleted).length;
@@ -59,7 +63,7 @@ class TodoProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setDraftCategory(TodoCategory category) {
+  void setDraftCategory(String category) {
     if (_draftCategory == category) {
       return;
     }
@@ -68,12 +72,44 @@ class TodoProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  bool addCategory(String rawName) {
+    final String normalized = CategoryCopy.normalize(rawName);
+    if (normalized.isEmpty) {
+      return false;
+    }
+
+    if (_categories.contains(normalized)) {
+      return false;
+    }
+
+    _categories.add(normalized);
+    _categories.sort();
+    _draftCategory = normalized;
+    _persistCategories();
+    notifyListeners();
+    return true;
+  }
+
   Future<void> loadTodos() async {
     _isLoading = true;
     notifyListeners();
 
     try {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
+      final List<String> rawCategories =
+          prefs.getStringList(AppConstants.categoriesStorageKey) ??
+              AppConstants.defaultCategories;
+      _categories
+        ..clear()
+        ..addAll({
+          ...rawCategories
+              .map((String category) => CategoryCopy.normalize(category))
+              .where((String category) => category.isNotEmpty),
+        });
+      if (_categories.isEmpty) {
+        _categories.addAll(AppConstants.defaultCategories);
+      }
+
       final List<String> rawTodos =
           prefs.getStringList(AppConstants.todosStorageKey) ?? <String>[];
 
@@ -85,15 +121,23 @@ class TodoProvider extends ChangeNotifier {
                   TodoItem.fromMap(jsonDecode(raw) as Map<String, dynamic>))
               .toList(),
         );
+
+      if (!_categories.contains(_draftCategory)) {
+        _draftCategory = _categories.first;
+      }
     } catch (_) {
       _items.clear();
+      _categories
+        ..clear()
+        ..addAll(AppConstants.defaultCategories);
+      _draftCategory = _categories.first;
     } finally {
       _isLoading = false;
       notifyListeners();
     }
   }
 
-  Future<bool> addTodo(String text, {TodoCategory? category}) async {
+  Future<bool> addTodo(String text, {String? category}) async {
     if (_isAdding) {
       return false;
     }
@@ -111,7 +155,7 @@ class TodoProvider extends ChangeNotifier {
       id: DateTime.now().microsecondsSinceEpoch.toString(),
       title: cleanedText,
       createdAt: DateTime.now(),
-      category: category ?? _draftCategory,
+      category: CategoryCopy.normalize(category ?? _draftCategory),
     );
 
     _items.insert(0, item);
@@ -169,5 +213,10 @@ class TodoProvider extends ChangeNotifier {
         _items.map((TodoItem item) => jsonEncode(item.toMap())).toList();
 
     await prefs.setStringList(AppConstants.todosStorageKey, encoded);
+  }
+
+  Future<void> _persistCategories() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(AppConstants.categoriesStorageKey, _categories);
   }
 }

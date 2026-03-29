@@ -1,8 +1,12 @@
 /// Role: Centralizes app-wide constants, keys, and all user-facing copy.
-import 'package:to_do_flutter/models/todo_item.dart';
-
 class AppConstants {
   static const String todosStorageKey = 'todos_storage_key_v1';
+  static const String categoriesStorageKey = 'categories_storage_key_v1';
+  static const List<String> defaultCategories = <String>[
+    'personal',
+    'work',
+    'study',
+  ];
 
   static const int maxTodoLength = 240;
   static const int itemEntranceAnimationStepMs = 35;
@@ -20,6 +24,14 @@ class AppStrings {
 
   static const String inputHint = 'What needs to get done?';
   static const String categoryLabel = 'Category';
+  static const String addCategoryTooltip = 'Add category';
+  static const String addCategoryTitle = 'Add Category';
+  static const String addCategoryHint = 'Category name';
+  static const String addCategoryCancel = 'Cancel';
+  static const String addCategoryConfirm = 'Add';
+  static const String addCategoryErrorEmpty = 'Category name cannot be empty.';
+  static const String addCategoryErrorExists = 'Category already exists.';
+  static const String addCategorySuccess = 'Category added';
   static const String addButton = 'Add';
   static const String inputErrorEmpty = 'Enter a task before adding.';
   static const String inputErrorTooLong = 'Task is too long. Keep it concise.';
@@ -39,21 +51,23 @@ class AppStrings {
   static const String completeSemantic = 'Toggle completion';
 
   static const String loadingLabel = 'Loading tasks...';
-
-  static const String categoryPersonal = 'Personal';
-  static const String categoryWork = 'Work';
-  static const String categoryStudy = 'Study';
 }
 
 class CategoryCopy {
-  static String label(TodoCategory category) {
-    switch (category) {
-      case TodoCategory.personal:
-        return AppStrings.categoryPersonal;
-      case TodoCategory.work:
-        return AppStrings.categoryWork;
-      case TodoCategory.study:
-        return AppStrings.categoryStudy;
+  static String normalize(String input) {
+    return input.trim().toLowerCase().replaceAll(RegExp(r'\s+'), ' ');
+  }
+
+  static String label(String category) {
+    final String normalized = normalize(category);
+    if (normalized.isEmpty) {
+      return 'General';
     }
+
+    return normalized
+        .split(' ')
+        .map((String part) =>
+            part.isEmpty ? '' : '${part[0].toUpperCase()}${part.substring(1)}')
+        .join(' ');
   }
 }

@@ -45,7 +45,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<bool> _addTask(
     BuildContext context,
     String input,
-    TodoCategory category,
+    String category,
   ) async {
     final TodoProvider provider = context.read<TodoProvider>();
     final String cleaned = input.trim();
@@ -70,6 +70,61 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     return didAdd;
+  }
+
+  Future<void> _showAddCategoryDialog(BuildContext context) async {
+    final TextEditingController controller = TextEditingController();
+    final TodoProvider provider = context.read<TodoProvider>();
+
+    final String? rawCategory = await showDialog<String>(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: const Text(AppStrings.addCategoryTitle),
+          content: TextField(
+            controller: controller,
+            textInputAction: TextInputAction.done,
+            autofocus: true,
+            onSubmitted: (_) {
+              Navigator.of(dialogContext).pop(controller.text);
+            },
+            decoration: const InputDecoration(
+              hintText: AppStrings.addCategoryHint,
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text(AppStrings.addCategoryCancel),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(dialogContext).pop(controller.text),
+              child: const Text(AppStrings.addCategoryConfirm),
+            ),
+          ],
+        );
+      },
+    );
+
+    controller.dispose();
+
+    if (!context.mounted || rawCategory == null) {
+      return;
+    }
+
+    final String normalized = CategoryCopy.normalize(rawCategory);
+    if (normalized.isEmpty) {
+      _showSnackBar(context, AppStrings.addCategoryErrorEmpty);
+      return;
+    }
+
+    final bool didAdd = provider.addCategory(normalized);
+    _showSnackBar(
+      context,
+      didAdd
+          ? AppStrings.addCategorySuccess
+          : AppStrings.addCategoryErrorExists,
+    );
   }
 
   void _showSnackBar(BuildContext context, String message) {
@@ -119,9 +174,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     const SizedBox(height: 18),
                     TodoInputField(
                       isLoading: provider.isAdding,
+                      categories: provider.categories,
                       selectedCategory: provider.draftCategory,
                       onCategoryChanged: provider.setDraftCategory,
-                      onSubmit: (String value, TodoCategory category) =>
+                      onAddCategory: () => _showAddCategoryDialog(context),
+                      onSubmit: (String value, String category) =>
                           _addTask(context, value, category),
                     ),
                     const SizedBox(height: 16),

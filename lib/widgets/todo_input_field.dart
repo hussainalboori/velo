@@ -1,21 +1,24 @@
 /// Role: Collects new to-do input with validation, loading state, and smooth transitions.
 import 'package:flutter/material.dart';
 import 'package:to_do_flutter/core/constants/app_constants.dart';
-import 'package:to_do_flutter/models/todo_item.dart';
 
 class TodoInputField extends StatefulWidget {
   const TodoInputField({
     required this.isLoading,
+    required this.categories,
     required this.selectedCategory,
     required this.onCategoryChanged,
+    required this.onAddCategory,
     required this.onSubmit,
     super.key,
   });
 
   final bool isLoading;
-  final TodoCategory selectedCategory;
-  final ValueChanged<TodoCategory> onCategoryChanged;
-  final Future<bool> Function(String value, TodoCategory category) onSubmit;
+  final List<String> categories;
+  final String selectedCategory;
+  final ValueChanged<String> onCategoryChanged;
+  final VoidCallback onAddCategory;
+  final Future<bool> Function(String value, String category) onSubmit;
 
   @override
   State<TodoInputField> createState() => _TodoInputFieldState();
@@ -107,18 +110,29 @@ class _TodoInputFieldState extends State<TodoInputField> {
             ],
           ),
           const SizedBox(height: 6),
-          Text(
-            AppStrings.categoryLabel,
-            style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  color: const Color(0xFF425466),
-                  fontWeight: FontWeight.w600,
+          Row(
+            children: <Widget>[
+              Expanded(
+                child: Text(
+                  AppStrings.categoryLabel,
+                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                        color: const Color(0xFF425466),
+                        fontWeight: FontWeight.w600,
+                      ),
                 ),
+              ),
+              IconButton(
+                onPressed: widget.onAddCategory,
+                tooltip: AppStrings.addCategoryTooltip,
+                icon: const Icon(Icons.add_circle_outline_rounded),
+              ),
+            ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           Wrap(
             spacing: 8,
             runSpacing: 8,
-            children: TodoCategory.values.map((TodoCategory category) {
+            children: widget.categories.map((String category) {
               final bool selected = widget.selectedCategory == category;
               return ChoiceChip(
                 label: Text(CategoryCopy.label(category)),

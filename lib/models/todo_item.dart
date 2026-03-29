@@ -1,10 +1,4 @@
 /// Role: Defines the to-do entity and serialization helpers for local persistence.
-enum TodoCategory {
-  personal,
-  work,
-  study,
-}
-
 class TodoItem {
   const TodoItem({
     required this.id,
@@ -17,14 +11,14 @@ class TodoItem {
   final String id;
   final String title;
   final DateTime createdAt;
-  final TodoCategory category;
+  final String category;
   final bool isCompleted;
 
   TodoItem copyWith({
     String? id,
     String? title,
     DateTime? createdAt,
-    TodoCategory? category,
+    String? category,
     bool? isCompleted,
   }) {
     return TodoItem(
@@ -41,7 +35,7 @@ class TodoItem {
       'id': id,
       'title': title,
       'createdAt': createdAt.millisecondsSinceEpoch,
-      'category': category.name,
+      'category': category,
       'isCompleted': isCompleted,
     };
   }
@@ -51,19 +45,16 @@ class TodoItem {
       id: map['id'] as String,
       title: map['title'] as String,
       createdAt: DateTime.fromMillisecondsSinceEpoch(map['createdAt'] as int),
-      category: _categoryFromValue(map['category'] as String?),
+      category: _categoryFromValue(map['category']),
       isCompleted: map['isCompleted'] as bool? ?? false,
     );
   }
 
-  static TodoCategory _categoryFromValue(String? raw) {
+  static String _categoryFromValue(Object? raw) {
     if (raw == null) {
-      return TodoCategory.personal;
+      return 'personal';
     }
 
-    return TodoCategory.values.firstWhere(
-      (TodoCategory value) => value.name == raw,
-      orElse: () => TodoCategory.personal,
-    );
+    return raw.toString();
   }
 }
