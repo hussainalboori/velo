@@ -1,0 +1,2 @@
+# Role: Enables recommended static analysis and linting rules for clean Flutter code.
+include: package:flutter_lints/flutter.yaml
