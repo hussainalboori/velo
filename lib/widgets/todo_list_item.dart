@@ -75,22 +75,34 @@ class TodoListItem extends StatelessWidget {
         ),
         subtitle: Padding(
           padding: const EdgeInsets.only(top: 6),
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(
-                color: const Color(0x140F4C5C),
-                borderRadius: BorderRadius.circular(999),
-              ),
-              child: Text(
-                CategoryCopy.label(item.category),
-                style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                      color: const Color(0xFF0F4C5C),
-                      fontWeight: FontWeight.w700,
+          child: LayoutBuilder(
+            builder: (BuildContext context, BoxConstraints constraints) {
+              return Align(
+                alignment: Alignment.centerLeft,
+                child: ConstrainedBox(
+                  constraints:
+                      BoxConstraints(maxWidth: constraints.maxWidth * 0.7),
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: const Color(0x140F4C5C),
+                      borderRadius: BorderRadius.circular(999),
                     ),
-              ),
-            ),
+                    child: Text(
+                      CategoryCopy.label(item.category),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      softWrap: false,
+                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                            color: const Color(0xFF0F4C5C),
+                            fontWeight: FontWeight.w700,
+                          ),
+                    ),
+                  ),
+                ),
+              );
+            },
           ),
         ),
         trailing: AnimatedSwitcher(

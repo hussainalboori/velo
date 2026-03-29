@@ -84,6 +84,10 @@ class TodoProvider extends ChangeNotifier {
       return false;
     }
 
+    if (normalized.length > AppConstants.maxCategoryLength) {
+      return false;
+    }
+
     if (_categories.contains(normalized)) {
       return false;
     }

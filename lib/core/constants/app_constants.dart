@@ -9,6 +9,7 @@ class AppConstants {
   ];
 
   static const int maxTodoLength = 240;
+  static const int maxCategoryLength = 28;
   static const int itemEntranceAnimationStepMs = 35;
   static const int baseAnimationMs = 280;
   static const int longAnimationMs = 450;
@@ -30,6 +31,7 @@ class AppStrings {
   static const String addCategoryCancel = 'Cancel';
   static const String addCategoryConfirm = 'Add';
   static const String addCategoryErrorEmpty = 'Category name cannot be empty.';
+  static const String addCategoryErrorTooLong = 'Category name is too long.';
   static const String addCategoryErrorExists = 'Category already exists.';
   static const String addCategorySuccess = 'Category added';
   static const String deleteCategoryTooltip = 'Delete category';

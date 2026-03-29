@@ -119,6 +119,11 @@ class _HomeScreenState extends State<HomeScreen> {
       return;
     }
 
+    if (normalized.length > AppConstants.maxCategoryLength) {
+      _showSnackBar(context, AppStrings.addCategoryErrorTooLong);
+      return;
+    }
+
     final bool didAdd = provider.addCategory(normalized);
     _showSnackBar(
       context,
