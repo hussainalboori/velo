@@ -13,6 +13,12 @@ enum TodoFilter {
   completed,
 }
 
+enum RemoveCategoryResult {
+  removed,
+  lastCategory,
+  notFound,
+}
+
 class TodoProvider extends ChangeNotifier {
   final List<TodoItem> _items = <TodoItem>[];
   final List<String> _categories =
@@ -88,6 +94,35 @@ class TodoProvider extends ChangeNotifier {
     _persistCategories();
     notifyListeners();
     return true;
+  }
+
+  Future<RemoveCategoryResult> removeCategory(String category) async {
+    final String normalized = CategoryCopy.normalize(category);
+    if (!_categories.contains(normalized)) {
+      return RemoveCategoryResult.notFound;
+    }
+
+    if (_categories.length == 1) {
+      return RemoveCategoryResult.lastCategory;
+    }
+
+    _categories.remove(normalized);
+    final String fallbackCategory = _categories.first;
+
+    for (int i = 0; i < _items.length; i++) {
+      if (_items[i].category == normalized) {
+        _items[i] = _items[i].copyWith(category: fallbackCategory);
+      }
+    }
+
+    if (_draftCategory == normalized) {
+      _draftCategory = fallbackCategory;
+    }
+
+    await _persistCategories();
+    await _persistTodos();
+    notifyListeners();
+    return RemoveCategoryResult.removed;
   }
 
   Future<void> loadTodos() async {

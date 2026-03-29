@@ -9,6 +9,7 @@ class TodoInputField extends StatefulWidget {
     required this.selectedCategory,
     required this.onCategoryChanged,
     required this.onAddCategory,
+    required this.onDeleteCategory,
     required this.onSubmit,
     super.key,
   });
@@ -18,6 +19,7 @@ class TodoInputField extends StatefulWidget {
   final String selectedCategory;
   final ValueChanged<String> onCategoryChanged;
   final VoidCallback onAddCategory;
+  final ValueChanged<String> onDeleteCategory;
   final Future<bool> Function(String value, String category) onSubmit;
 
   @override
@@ -134,10 +136,13 @@ class _TodoInputFieldState extends State<TodoInputField> {
             runSpacing: 8,
             children: widget.categories.map((String category) {
               final bool selected = widget.selectedCategory == category;
-              return ChoiceChip(
+              return InputChip(
                 label: Text(CategoryCopy.label(category)),
                 selected: selected,
                 onSelected: (_) => widget.onCategoryChanged(category),
+                onDeleted: () => widget.onDeleteCategory(category),
+                deleteIcon: const Icon(Icons.close_rounded, size: 18),
+                deleteButtonTooltipMessage: AppStrings.deleteCategoryTooltip,
               );
             }).toList(),
           ),

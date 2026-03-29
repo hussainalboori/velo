@@ -32,6 +32,15 @@ class AppStrings {
   static const String addCategoryErrorEmpty = 'Category name cannot be empty.';
   static const String addCategoryErrorExists = 'Category already exists.';
   static const String addCategorySuccess = 'Category added';
+  static const String deleteCategoryTooltip = 'Delete category';
+  static const String deleteCategoryTitle = 'Delete Category?';
+  static const String deleteCategoryMessage =
+      'Tasks in this category will be moved to another category.';
+  static const String deleteCategoryConfirm = 'Delete';
+  static const String deleteCategorySuccess = 'Category deleted';
+  static const String deleteCategoryErrorLast =
+      'At least one category must remain.';
+  static const String deleteCategoryErrorMissing = 'Category not found.';
   static const String addButton = 'Add';
   static const String inputErrorEmpty = 'Enter a task before adding.';
   static const String inputErrorTooLong = 'Task is too long. Keep it concise.';

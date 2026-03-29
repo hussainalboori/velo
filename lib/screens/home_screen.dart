@@ -72,9 +72,8 @@ class _HomeScreenState extends State<HomeScreen> {
     return didAdd;
   }
 
-  Future<void> _showAddCategoryDialog(BuildContext context) async {
-    final TextEditingController controller = TextEditingController();
-    final TodoProvider provider = context.read<TodoProvider>();
+  Future<void> _showAddCategoryDialog() async {
+    String draftCategory = '';
 
     final String? rawCategory = await showDialog<String>(
       context: context,
@@ -82,11 +81,13 @@ class _HomeScreenState extends State<HomeScreen> {
         return AlertDialog(
           title: const Text(AppStrings.addCategoryTitle),
           content: TextField(
-            controller: controller,
             textInputAction: TextInputAction.done,
             autofocus: true,
+            onChanged: (String value) {
+              draftCategory = value;
+            },
             onSubmitted: (_) {
-              Navigator.of(dialogContext).pop(controller.text);
+              Navigator.of(dialogContext).pop(draftCategory);
             },
             decoration: const InputDecoration(
               hintText: AppStrings.addCategoryHint,
@@ -98,7 +99,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: const Text(AppStrings.addCategoryCancel),
             ),
             FilledButton(
-              onPressed: () => Navigator.of(dialogContext).pop(controller.text),
+              onPressed: () => Navigator.of(dialogContext).pop(draftCategory),
               child: const Text(AppStrings.addCategoryConfirm),
             ),
           ],
@@ -106,11 +107,11 @@ class _HomeScreenState extends State<HomeScreen> {
       },
     );
 
-    controller.dispose();
-
-    if (!context.mounted || rawCategory == null) {
+    if (!mounted || rawCategory == null) {
       return;
     }
+
+    final TodoProvider provider = context.read<TodoProvider>();
 
     final String normalized = CategoryCopy.normalize(rawCategory);
     if (normalized.isEmpty) {
@@ -125,6 +126,54 @@ class _HomeScreenState extends State<HomeScreen> {
           ? AppStrings.addCategorySuccess
           : AppStrings.addCategoryErrorExists,
     );
+  }
+
+  Future<void> _deleteCategory(BuildContext context, String category) async {
+    final bool shouldDelete = await showDialog<bool>(
+          context: context,
+          builder: (BuildContext dialogContext) {
+            return AlertDialog(
+              title: Text(AppStrings.deleteCategoryTitle),
+              content: Text(
+                '${CategoryCopy.label(category)}. ${AppStrings.deleteCategoryMessage}',
+              ),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () => Navigator.of(dialogContext).pop(false),
+                  child: const Text(AppStrings.addCategoryCancel),
+                ),
+                FilledButton(
+                  onPressed: () => Navigator.of(dialogContext).pop(true),
+                  child: const Text(AppStrings.deleteCategoryConfirm),
+                ),
+              ],
+            );
+          },
+        ) ??
+        false;
+
+    if (!shouldDelete || !context.mounted) {
+      return;
+    }
+
+    final TodoProvider provider = context.read<TodoProvider>();
+    final RemoveCategoryResult result = await provider.removeCategory(category);
+
+    if (!context.mounted) {
+      return;
+    }
+
+    switch (result) {
+      case RemoveCategoryResult.removed:
+        _showSnackBar(context, AppStrings.deleteCategorySuccess);
+        break;
+      case RemoveCategoryResult.lastCategory:
+        _showSnackBar(context, AppStrings.deleteCategoryErrorLast);
+        break;
+      case RemoveCategoryResult.notFound:
+        _showSnackBar(context, AppStrings.deleteCategoryErrorMissing);
+        break;
+    }
   }
 
   void _showSnackBar(BuildContext context, String message) {
@@ -177,7 +226,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       categories: provider.categories,
                       selectedCategory: provider.draftCategory,
                       onCategoryChanged: provider.setDraftCategory,
-                      onAddCategory: () => _showAddCategoryDialog(context),
+                      onAddCategory: _showAddCategoryDialog,
+                      onDeleteCategory: (String category) =>
+                          _deleteCategory(context, category),
                       onSubmit: (String value, String category) =>
                           _addTask(context, value, category),
                     ),
