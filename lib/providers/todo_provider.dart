@@ -259,6 +259,7 @@ class TodoProvider extends ChangeNotifier {
     required String id,
     required String title,
     required String description,
+    required String category,
   }) async {
     final int index = _items.indexWhere((TodoItem item) => item.id == id);
     if (index == -1) {
@@ -274,9 +275,15 @@ class TodoProvider extends ChangeNotifier {
       return false;
     }
 
+    final String cleanCategory = CategoryCopy.normalize(category);
+    if (cleanCategory.isEmpty || !_categories.contains(cleanCategory)) {
+      return false;
+    }
+
     _items[index] = _items[index].copyWith(
       title: cleanTitle,
       description: description.trim(),
+      category: cleanCategory,
     );
     notifyListeners();
     await _persistTodos();

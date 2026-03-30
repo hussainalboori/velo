@@ -1,4 +1,4 @@
-asd/// Role: Provides a dedicated task details page for editing title, description, and subtasks.
+/// Role: Provides a dedicated task details page for editing title, description, and subtasks.
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:to_do_flutter/core/constants/app_constants.dart';
@@ -24,6 +24,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
 
   bool _isInitialized = false;
   bool _isEditing = false;
+  String? _selectedCategory;
 
   @override
   void dispose() {
@@ -40,6 +41,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
 
     _titleController.text = task.title;
     _descriptionController.text = task.description;
+    _selectedCategory = task.category;
     _isInitialized = true;
   }
 
@@ -47,6 +49,9 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
     final TodoProvider provider = context.read<TodoProvider>();
     final String title = _titleController.text.trim();
     final String description = _descriptionController.text;
+    final String category = _selectedCategory ??
+        provider.taskById(widget.taskId)?.category ??
+        AppConstants.defaultCategories.first;
 
     if (title.isEmpty) {
       _showSnackBar(context, AppStrings.taskSaveError);
@@ -62,6 +67,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
       id: widget.taskId,
       title: title,
       description: description,
+      category: category,
     );
 
     if (!context.mounted || !didSave) {
@@ -139,6 +145,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
               setState(() {
                 _titleController.text = task.title;
                 _descriptionController.text = task.description;
+                _selectedCategory = task.category;
                 _isEditing = true;
               });
             },
@@ -173,6 +180,58 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                 Text(
                   task.title,
                   style: Theme.of(context).textTheme.titleMedium,
+                ),
+              const SizedBox(height: 12),
+              Text(
+                AppStrings.categoryLabel,
+                style: Theme.of(context).textTheme.labelLarge,
+              ),
+              const SizedBox(height: 8),
+              if (_isEditing)
+                DropdownButtonFormField<String>(
+                  isExpanded: true,
+                  value: provider.categories.contains(_selectedCategory)
+                      ? _selectedCategory
+                      : (provider.categories.isNotEmpty
+                          ? provider.categories.first
+                          : null),
+                  selectedItemBuilder: (BuildContext context) {
+                    return provider.categories.map((String category) {
+                      return Text(
+                        CategoryCopy.label(category),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      );
+                    }).toList();
+                  },
+                  items: provider.categories
+                      .map(
+                        (String category) => DropdownMenuItem<String>(
+                          value: category,
+                          child: Text(
+                            CategoryCopy.label(category),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: (String? value) {
+                    if (value == null) {
+                      return;
+                    }
+                    setState(() {
+                      _selectedCategory = value;
+                    });
+                  },
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                  ),
+                )
+              else
+                Text(
+                  CategoryCopy.label(task.category),
+                  style: Theme.of(context).textTheme.bodyMedium,
                 ),
               const SizedBox(height: 12),
               Text(
