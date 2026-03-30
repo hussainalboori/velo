@@ -58,6 +58,15 @@ class TodoProvider extends ChangeNotifier {
     }
   }
 
+  TodoItem? taskById(String id) {
+    for (final TodoItem item in _items) {
+      if (item.id == id) {
+        return item;
+      }
+    }
+    return null;
+  }
+
   bool isItemBusy(String id) => _busyItemIds.contains(id);
 
   void setFilter(TodoFilter filter) {
@@ -244,6 +253,107 @@ class TodoProvider extends ChangeNotifier {
 
     _busyItemIds.remove(id);
     notifyListeners();
+  }
+
+  Future<bool> updateTaskDetails({
+    required String id,
+    required String title,
+    required String description,
+  }) async {
+    final int index = _items.indexWhere((TodoItem item) => item.id == id);
+    if (index == -1) {
+      return false;
+    }
+
+    final String cleanTitle = title.trim();
+    if (cleanTitle.isEmpty || cleanTitle.length > AppConstants.maxTodoLength) {
+      return false;
+    }
+
+    if (description.length > AppConstants.maxDescriptionLength) {
+      return false;
+    }
+
+    _items[index] = _items[index].copyWith(
+      title: cleanTitle,
+      description: description.trim(),
+    );
+    notifyListeners();
+    await _persistTodos();
+    return true;
+  }
+
+  Future<bool> addSubTask({
+    required String taskId,
+    required String title,
+  }) async {
+    final int index = _items.indexWhere((TodoItem item) => item.id == taskId);
+    if (index == -1) {
+      return false;
+    }
+
+    final String cleanTitle = title.trim();
+    if (cleanTitle.isEmpty ||
+        cleanTitle.length > AppConstants.maxSubTaskLength) {
+      return false;
+    }
+
+    final List<SubTask> updated = List<SubTask>.from(_items[index].subTasks)
+      ..add(
+        SubTask(
+          id: DateTime.now().microsecondsSinceEpoch.toString(),
+          title: cleanTitle,
+        ),
+      );
+
+    _items[index] = _items[index].copyWith(subTasks: updated);
+    notifyListeners();
+    await _persistTodos();
+    return true;
+  }
+
+  Future<bool> toggleSubTask({
+    required String taskId,
+    required String subTaskId,
+  }) async {
+    final int index = _items.indexWhere((TodoItem item) => item.id == taskId);
+    if (index == -1) {
+      return false;
+    }
+
+    final List<SubTask> updated = List<SubTask>.from(_items[index].subTasks);
+    final int subIndex =
+        updated.indexWhere((SubTask subTask) => subTask.id == subTaskId);
+    if (subIndex == -1) {
+      return false;
+    }
+
+    updated[subIndex] = updated[subIndex].copyWith(
+      isCompleted: !updated[subIndex].isCompleted,
+    );
+
+    _items[index] = _items[index].copyWith(subTasks: updated);
+    notifyListeners();
+    await _persistTodos();
+    return true;
+  }
+
+  Future<bool> deleteSubTask({
+    required String taskId,
+    required String subTaskId,
+  }) async {
+    final int index = _items.indexWhere((TodoItem item) => item.id == taskId);
+    if (index == -1) {
+      return false;
+    }
+
+    final List<SubTask> updated = List<SubTask>.from(_items[index].subTasks)
+      ..removeWhere((SubTask subTask) => subTask.id == subTaskId);
+
+    _items[index] = _items[index].copyWith(subTasks: updated);
+    notifyListeners();
+    await _persistTodos();
+    return true;
   }
 
   Future<void> _persistTodos() async {

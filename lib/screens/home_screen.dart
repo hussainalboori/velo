@@ -5,6 +5,7 @@ import 'package:to_do_flutter/core/constants/app_constants.dart';
 import 'package:to_do_flutter/models/todo_item.dart';
 import 'package:to_do_flutter/providers/todo_provider.dart';
 import 'package:to_do_flutter/widgets/empty_state_view.dart';
+import 'package:to_do_flutter/screens/task_detail_screen.dart';
 import 'package:to_do_flutter/widgets/todo_filter_bar.dart';
 import 'package:to_do_flutter/widgets/todo_input_field.dart';
 import 'package:to_do_flutter/widgets/todo_list_view.dart';
@@ -189,6 +190,14 @@ class _HomeScreenState extends State<HomeScreen> {
       );
   }
 
+  void _openTaskDetails(BuildContext context, TodoItem item) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => TaskDetailScreen(taskId: item.id),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -269,6 +278,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                       busyIds: provider.busyItemIds,
                                       onToggle: provider.toggleCompletion,
                                       onDelete: provider.deleteTodo,
+                                      onTapTask: (TodoItem item) =>
+                                          _openTaskDetails(context, item),
                                     ),
                             ),
                     ),

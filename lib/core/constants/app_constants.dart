@@ -10,6 +10,8 @@ class AppConstants {
 
   static const int maxTodoLength = 240;
   static const int maxCategoryLength = 28;
+  static const int maxDescriptionLength = 600;
+  static const int maxSubTaskLength = 120;
   static const int itemEntranceAnimationStepMs = 35;
   static const int baseAnimationMs = 280;
   static const int longAnimationMs = 450;
@@ -47,6 +49,22 @@ class AppStrings {
   static const String inputErrorEmpty = 'Enter a task before adding.';
   static const String inputErrorTooLong = 'Task is too long. Keep it concise.';
   static const String snackbarAddSuccess = 'Task added';
+  static const String taskDetailsTitle = 'Task Details';
+  static const String taskEditButton = 'Edit';
+  static const String taskSaveTopButton = 'Save';
+  static const String taskTitleLabel = 'Task name';
+  static const String taskDescriptionLabel = 'Description';
+  static const String taskDescriptionHint = 'Add helpful details for this task';
+  static const String saveChangesButton = 'Save Changes';
+  static const String saveChangesSuccess = 'Task updated';
+  static const String subTasksLabel = 'Subtasks';
+  static const String subTaskHint = 'Add a subtask';
+  static const String addSubTaskButton = 'Add subtask';
+  static const String emptySubTasks = 'No subtasks yet';
+  static const String subTaskAddError = 'Subtask cannot be empty.';
+  static const String subTaskSaveError = 'Subtask is too long.';
+  static const String taskSaveError = 'Task name cannot be empty.';
+  static const String descriptionSaveError = 'Description is too long.';
 
   static const String emptyTitle = 'Nothing queued yet';
   static const String emptyMessage =

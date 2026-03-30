@@ -10,6 +10,7 @@ class TodoListView extends StatelessWidget {
     required this.busyIds,
     required this.onToggle,
     required this.onDelete,
+    required this.onTapTask,
     super.key,
   });
 
@@ -17,6 +18,7 @@ class TodoListView extends StatelessWidget {
   final Set<String> busyIds;
   final Future<void> Function(String id) onToggle;
   final Future<void> Function(String id) onDelete;
+  final void Function(TodoItem item) onTapTask;
 
   @override
   Widget build(BuildContext context) {
@@ -49,6 +51,7 @@ class TodoListView extends StatelessWidget {
             isBusy: busyIds.contains(item.id),
             onToggle: () => onToggle(item.id),
             onDelete: () => onDelete(item.id),
+            onTap: () => onTapTask(item),
           ),
         );
       },

@@ -9,6 +9,7 @@ class TodoListItem extends StatelessWidget {
     required this.isBusy,
     required this.onToggle,
     required this.onDelete,
+    required this.onTap,
     super.key,
   });
 
@@ -16,6 +17,7 @@ class TodoListItem extends StatelessWidget {
   final bool isBusy;
   final VoidCallback onToggle;
   final VoidCallback onDelete;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -34,6 +36,7 @@ class TodoListItem extends StatelessWidget {
         border: Border.all(color: borderColor),
       ),
       child: ListTile(
+        onTap: onTap,
         contentPadding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
         leading: IgnorePointer(
           ignoring: isBusy,
