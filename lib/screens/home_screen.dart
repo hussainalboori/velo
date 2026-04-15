@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:to_do_flutter/core/constants/app_constants.dart';
 import 'package:to_do_flutter/models/task.dart';
 import 'package:to_do_flutter/providers/todo_provider.dart';
+import 'package:to_do_flutter/screens/paywall_screen.dart';
 import 'package:to_do_flutter/services/task_service.dart';
 import 'package:to_do_flutter/widgets/empty_state_view.dart';
 import 'package:to_do_flutter/screens/task_detail_screen.dart';
@@ -293,7 +294,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                         } catch (e) {
                                           debugPrint('AI Error: $e');
                                           if (context.mounted) {
-                                            _showSnackBar(context, 'Error: $e');
+                                            if (e.toString().contains('OUT_OF_TOKENS')) {
+                                              showModalBottomSheet<void>(
+                                                context: context,
+                                                isScrollControlled: true,
+                                                backgroundColor: Colors.transparent,
+                                                builder: (context) => const PaywallScreen(),
+                                              );
+                                            } else {
+                                              _showSnackBar(context, 'Error: $e');
+                                            }
                                           }
                                         }
                                       },
