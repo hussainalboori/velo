@@ -1,7 +1,7 @@
 /// Role: Renders one animated to-do row with completion and delete actions.
 import 'package:flutter/material.dart';
 import 'package:to_do_flutter/core/constants/app_constants.dart';
-import 'package:to_do_flutter/models/todo_item.dart';
+import 'package:to_do_flutter/models/task.dart';
 
 class TodoListItem extends StatelessWidget {
   const TodoListItem({
@@ -9,14 +9,16 @@ class TodoListItem extends StatelessWidget {
     required this.isBusy,
     required this.onToggle,
     required this.onDelete,
+    required this.onGenerateAI,
     required this.onTap,
     super.key,
   });
 
-  final TodoItem item;
+  final Task item;
   final bool isBusy;
   final VoidCallback onToggle;
   final VoidCallback onDelete;
+  final VoidCallback onGenerateAI;
   final VoidCallback onTap;
 
   @override
@@ -117,11 +119,22 @@ class TodoListItem extends StatelessWidget {
                   height: 20,
                   child: CircularProgressIndicator(strokeWidth: 2),
                 )
-              : IconButton(
-                  key: const ValueKey<String>('item_delete'),
-                  tooltip: AppStrings.deleteTooltip,
-                  onPressed: onDelete,
-                  icon: const Icon(Icons.delete_outline_rounded),
+              : Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      key: const ValueKey<String>('item_ai'),
+                      tooltip: 'Generate Sub-tasks with AI',
+                      onPressed: onGenerateAI,
+                      icon: const Icon(Icons.auto_awesome, color: Colors.deepPurpleAccent),
+                    ),
+                    IconButton(
+                      key: const ValueKey<String>('item_delete'),
+                      tooltip: AppStrings.deleteTooltip,
+                      onPressed: onDelete,
+                      icon: const Icon(Icons.delete_outline_rounded),
+                    ),
+                  ],
                 ),
         ),
       ),

@@ -1,7 +1,7 @@
 /// Role: Displays the animated list of tasks and delegates row-level actions.
 import 'package:flutter/material.dart';
 import 'package:to_do_flutter/core/constants/app_constants.dart';
-import 'package:to_do_flutter/models/todo_item.dart';
+import 'package:to_do_flutter/models/task.dart';
 import 'package:to_do_flutter/widgets/todo_list_item.dart';
 
 class TodoListView extends StatelessWidget {
@@ -10,15 +10,17 @@ class TodoListView extends StatelessWidget {
     required this.busyIds,
     required this.onToggle,
     required this.onDelete,
+    required this.onGenerateAI,
     required this.onTapTask,
     super.key,
   });
 
-  final List<TodoItem> items;
+  final List<Task> items;
   final Set<String> busyIds;
   final Future<void> Function(String id) onToggle;
   final Future<void> Function(String id) onDelete;
-  final void Function(TodoItem item) onTapTask;
+  final Future<void> Function(String id) onGenerateAI;
+  final void Function(Task item) onTapTask;
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +29,7 @@ class TodoListView extends StatelessWidget {
       itemCount: items.length,
       separatorBuilder: (_, __) => const SizedBox(height: 10),
       itemBuilder: (BuildContext context, int index) {
-        final TodoItem item = items[index];
+        final Task item = items[index];
         final int delay = (AppConstants.baseAnimationMs +
                 (index * AppConstants.itemEntranceAnimationStepMs))
             .clamp(0, AppConstants.longAnimationMs + 240);
@@ -46,11 +48,12 @@ class TodoListView extends StatelessWidget {
             );
           },
           child: TodoListItem(
-            key: ValueKey<String>(item.id),
+            key: ValueKey<String>(item.id!),
             item: item,
             isBusy: busyIds.contains(item.id),
-            onToggle: () => onToggle(item.id),
-            onDelete: () => onDelete(item.id),
+            onToggle: () => onToggle(item.id!),
+            onDelete: () => onDelete(item.id!),
+            onGenerateAI: () => onGenerateAI(item.id!),
             onTap: () => onTapTask(item),
           ),
         );

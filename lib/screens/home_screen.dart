@@ -2,8 +2,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:to_do_flutter/core/constants/app_constants.dart';
-import 'package:to_do_flutter/models/todo_item.dart';
+import 'package:to_do_flutter/models/task.dart';
 import 'package:to_do_flutter/providers/todo_provider.dart';
+import 'package:to_do_flutter/services/task_service.dart';
 import 'package:to_do_flutter/widgets/empty_state_view.dart';
 import 'package:to_do_flutter/screens/task_detail_screen.dart';
 import 'package:to_do_flutter/widgets/todo_filter_bar.dart';
@@ -190,10 +191,10 @@ class _HomeScreenState extends State<HomeScreen> {
       );
   }
 
-  void _openTaskDetails(BuildContext context, TodoItem item) {
+  void _openTaskDetails(BuildContext context, Task item) {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (_) => TaskDetailScreen(taskId: item.id),
+        builder: (_) => TaskDetailScreen(taskId: item.id!),
       ),
     );
   }
@@ -218,7 +219,7 @@ class _HomeScreenState extends State<HomeScreen> {
             padding: const EdgeInsets.fromLTRB(20, 18, 20, 14),
             child: Consumer<TodoProvider>(
               builder: (BuildContext context, TodoProvider provider, _) {
-                final List<TodoItem> filteredItems = provider.filteredItems;
+                final List<Task> filteredItems = provider.filteredItems;
                 final ({String title, String message}) emptyCopy =
                     _emptyCopyForFilter(provider.selectedFilter);
 
@@ -278,7 +279,25 @@ class _HomeScreenState extends State<HomeScreen> {
                                       busyIds: provider.busyItemIds,
                                       onToggle: provider.toggleCompletion,
                                       onDelete: provider.deleteTodo,
-                                      onTapTask: (TodoItem item) =>
+                                      onGenerateAI: (String id) async {
+                                        final taskItem = context.read<TodoProvider>().taskById(id);
+                                        if (taskItem == null) return;
+                                        
+                                        _showSnackBar(context, 'AI is thinking...');
+                                        try {
+                                          await TaskService().generateSubtasks(id, taskItem.title);
+                                          if (context.mounted) {
+                                            _showSnackBar(context, 'Sub-tasks generated!');
+                                            context.read<TodoProvider>().loadTodos();
+                                          }
+                                        } catch (e) {
+                                          debugPrint('AI Error: $e');
+                                          if (context.mounted) {
+                                            _showSnackBar(context, 'Error: $e');
+                                          }
+                                        }
+                                      },
+                                      onTapTask: (Task item) =>
                                           _openTaskDetails(context, item),
                                     ),
                             ),

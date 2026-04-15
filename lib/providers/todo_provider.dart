@@ -1,28 +1,19 @@
-/// Role: Manages to-do state, persistence, and user interactions via Provider.
+/// Role: Manages to-do state, interacting with Supabase via TaskService.
 import 'dart:collection';
-import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:to_do_flutter/core/constants/app_constants.dart';
-import 'package:to_do_flutter/models/todo_item.dart';
+import 'package:to_do_flutter/models/task.dart';
+import 'package:to_do_flutter/services/task_service.dart';
 
-enum TodoFilter {
-  all,
-  active,
-  completed,
-}
-
-enum RemoveCategoryResult {
-  removed,
-  lastCategory,
-  notFound,
-}
+enum TodoFilter { all, active, completed }
+enum RemoveCategoryResult { removed, lastCategory, notFound }
 
 class TodoProvider extends ChangeNotifier {
-  final List<TodoItem> _items = <TodoItem>[];
-  final List<String> _categories =
-      List<String>.from(AppConstants.defaultCategories);
+  final TaskService _taskService = TaskService();
+  
+  final List<Task> _items = <Task>[];
+  final List<String> _categories = List<String>.from(AppConstants.defaultCategories);
   final Set<String> _busyItemIds = <String>{};
 
   bool _isLoading = true;
@@ -30,94 +21,67 @@ class TodoProvider extends ChangeNotifier {
   TodoFilter _selectedFilter = TodoFilter.all;
   String _draftCategory = AppConstants.defaultCategories.first;
 
-  UnmodifiableListView<TodoItem> get items =>
-      UnmodifiableListView<TodoItem>(_items);
-  UnmodifiableListView<String> get categories =>
-      UnmodifiableListView<String>(_categories);
-  UnmodifiableSetView<String> get busyItemIds =>
-      UnmodifiableSetView<String>(_busyItemIds);
+  UnmodifiableListView<Task> get items => UnmodifiableListView<Task>(_items);
+  UnmodifiableListView<String> get categories => UnmodifiableListView<String>(_categories);
+  UnmodifiableSetView<String> get busyItemIds => UnmodifiableSetView<String>(_busyItemIds);
 
   bool get isLoading => _isLoading;
   bool get isAdding => _isAdding;
   TodoFilter get selectedFilter => _selectedFilter;
   String get draftCategory => _draftCategory;
 
-  int get activeCount =>
-      _items.where((TodoItem item) => !item.isCompleted).length;
-  int get completedCount =>
-      _items.where((TodoItem item) => item.isCompleted).length;
+  int get activeCount => _items.where((Task item) => !item.isCompleted).length;
+  int get completedCount => _items.where((Task item) => item.isCompleted).length;
 
-  List<TodoItem> get filteredItems {
+  List<Task> get filteredItems {
     switch (_selectedFilter) {
       case TodoFilter.active:
-        return _items.where((TodoItem item) => !item.isCompleted).toList();
+        return _items.where((Task item) => !item.isCompleted).toList();
       case TodoFilter.completed:
-        return _items.where((TodoItem item) => item.isCompleted).toList();
+        return _items.where((Task item) => item.isCompleted).toList();
       case TodoFilter.all:
-        return List<TodoItem>.from(_items);
+        return List<Task>.from(_items);
     }
   }
 
-  TodoItem? taskById(String id) {
-    for (final TodoItem item in _items) {
-      if (item.id == id) {
-        return item;
-      }
+  Task? taskById(String id) {
+    try {
+      return _items.firstWhere((Task item) => item.id == id);
+    } catch (_) {
+      return null;
     }
-    return null;
   }
 
   bool isItemBusy(String id) => _busyItemIds.contains(id);
 
   void setFilter(TodoFilter filter) {
-    if (_selectedFilter == filter) {
-      return;
-    }
-
+    if (_selectedFilter == filter) return;
     _selectedFilter = filter;
     notifyListeners();
   }
 
   void setDraftCategory(String category) {
-    if (_draftCategory == category) {
-      return;
-    }
-
+    if (_draftCategory == category) return;
     _draftCategory = category;
     notifyListeners();
   }
 
   bool addCategory(String rawName) {
     final String normalized = CategoryCopy.normalize(rawName);
-    if (normalized.isEmpty) {
+    if (normalized.isEmpty || normalized.length > AppConstants.maxCategoryLength || _categories.contains(normalized)) {
       return false;
     }
-
-    if (normalized.length > AppConstants.maxCategoryLength) {
-      return false;
-    }
-
-    if (_categories.contains(normalized)) {
-      return false;
-    }
-
     _categories.add(normalized);
     _categories.sort();
     _draftCategory = normalized;
-    _persistCategories();
     notifyListeners();
     return true;
   }
 
   Future<RemoveCategoryResult> removeCategory(String category) async {
     final String normalized = CategoryCopy.normalize(category);
-    if (!_categories.contains(normalized)) {
-      return RemoveCategoryResult.notFound;
-    }
-
-    if (_categories.length == 1) {
-      return RemoveCategoryResult.lastCategory;
-    }
+    if (!_categories.contains(normalized)) return RemoveCategoryResult.notFound;
+    if (_categories.length == 1) return RemoveCategoryResult.lastCategory;
 
     _categories.remove(normalized);
     final String fallbackCategory = _categories.first;
@@ -125,15 +89,11 @@ class TodoProvider extends ChangeNotifier {
     for (int i = 0; i < _items.length; i++) {
       if (_items[i].category == normalized) {
         _items[i] = _items[i].copyWith(category: fallbackCategory);
+        await _taskService.updateTask(_items[i]);
       }
     }
 
-    if (_draftCategory == normalized) {
-      _draftCategory = fallbackCategory;
-    }
-
-    await _persistCategories();
-    await _persistTodos();
+    if (_draftCategory == normalized) _draftCategory = fallbackCategory;
     notifyListeners();
     return RemoveCategoryResult.removed;
   }
@@ -143,42 +103,28 @@ class TodoProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
-      final List<String> rawCategories =
-          prefs.getStringList(AppConstants.categoriesStorageKey) ??
-              AppConstants.defaultCategories;
-      _categories
-        ..clear()
-        ..addAll({
-          ...rawCategories
-              .map((String category) => CategoryCopy.normalize(category))
-              .where((String category) => category.isNotEmpty),
-        });
-      if (_categories.isEmpty) {
-        _categories.addAll(AppConstants.defaultCategories);
+      final tasks = await _taskService.getTasks();
+      // Fetch subtasks for each task. In a real app we'd do a joined query.
+      for (int i = 0; i < tasks.length; i++) {
+        final subTasks = await _taskService.getSubTasks(tasks[i].id!);
+        tasks[i] = tasks[i].copyWith(subTasks: subTasks);
       }
+      
+      _items.clear();
+      _items.addAll(tasks);
 
-      final List<String> rawTodos =
-          prefs.getStringList(AppConstants.todosStorageKey) ?? <String>[];
-
-      _items
-        ..clear()
-        ..addAll(
-          rawTodos
-              .map((String raw) =>
-                  TodoItem.fromMap(jsonDecode(raw) as Map<String, dynamic>))
-              .toList(),
-        );
+      // Collect any unique categories from the server
+      for (final task in tasks) {
+        if (!_categories.contains(task.category)) {
+          _categories.add(task.category);
+        }
+      }
 
       if (!_categories.contains(_draftCategory)) {
         _draftCategory = _categories.first;
       }
     } catch (_) {
       _items.clear();
-      _categories
-        ..clear()
-        ..addAll(AppConstants.defaultCategories);
-      _draftCategory = _categories.first;
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -186,30 +132,26 @@ class TodoProvider extends ChangeNotifier {
   }
 
   Future<bool> addTodo(String text, {String? category}) async {
-    if (_isAdding) {
-      return false;
-    }
+    if (_isAdding) return false;
 
     final String cleanedText = text.trim();
-    if (cleanedText.isEmpty ||
-        cleanedText.length > AppConstants.maxTodoLength) {
-      return false;
-    }
+    if (cleanedText.isEmpty || cleanedText.length > AppConstants.maxTodoLength) return false;
 
     _isAdding = true;
     notifyListeners();
 
-    final TodoItem item = TodoItem(
-      id: DateTime.now().microsecondsSinceEpoch.toString(),
-      title: cleanedText,
-      createdAt: DateTime.now(),
-      category: CategoryCopy.normalize(category ?? _draftCategory),
-    );
-
-    _items.insert(0, item);
-    notifyListeners();
-
-    await _persistTodos();
+    try {
+      final Task draft = Task(
+        title: cleanedText,
+        category: CategoryCopy.normalize(category ?? _draftCategory),
+      );
+      final Task added = await _taskService.addTask(draft);
+      _items.insert(0, added);
+    } catch (_) {
+      _isAdding = false;
+      notifyListeners();
+      return false;
+    }
 
     _isAdding = false;
     notifyListeners();
@@ -217,39 +159,33 @@ class TodoProvider extends ChangeNotifier {
   }
 
   Future<void> toggleCompletion(String id) async {
-    if (_busyItemIds.contains(id)) {
-      return;
-    }
-
-    final int index = _items.indexWhere((TodoItem item) => item.id == id);
-    if (index == -1) {
-      return;
-    }
+    if (_busyItemIds.contains(id)) return;
+    final int index = _items.indexWhere((Task item) => item.id == id);
+    if (index == -1) return;
 
     _busyItemIds.add(id);
-    _items[index] = _items[index].copyWith(
-      isCompleted: !_items[index].isCompleted,
-    );
     notifyListeners();
 
-    await _persistTodos();
+    try {
+      final bool newStatus = !_items[index].isCompleted;
+      final Task updated = await _taskService.updateTaskCompletion(id, newStatus);
+      // Keep existing subTasks
+      _items[index] = updated.copyWith(subTasks: _items[index].subTasks);
+    } catch (_) {}
 
     _busyItemIds.remove(id);
     notifyListeners();
   }
 
   Future<void> deleteTodo(String id) async {
-    if (_busyItemIds.contains(id)) {
-      return;
-    }
-
+    if (_busyItemIds.contains(id)) return;
     _busyItemIds.add(id);
     notifyListeners();
 
-    _items.removeWhere((TodoItem item) => item.id == id);
-    notifyListeners();
-
-    await _persistTodos();
+    try {
+      await _taskService.deleteTask(id);
+      _items.removeWhere((Task item) => item.id == id);
+    } catch (_) {}
 
     _busyItemIds.remove(id);
     notifyListeners();
@@ -261,118 +197,93 @@ class TodoProvider extends ChangeNotifier {
     required String description,
     required String category,
   }) async {
-    final int index = _items.indexWhere((TodoItem item) => item.id == id);
-    if (index == -1) {
-      return false;
-    }
+    final int index = _items.indexWhere((Task item) => item.id == id);
+    if (index == -1) return false;
 
     final String cleanTitle = title.trim();
-    if (cleanTitle.isEmpty || cleanTitle.length > AppConstants.maxTodoLength) {
-      return false;
-    }
-
-    if (description.length > AppConstants.maxDescriptionLength) {
-      return false;
-    }
+    if (cleanTitle.isEmpty || cleanTitle.length > AppConstants.maxTodoLength) return false;
+    if (description.length > AppConstants.maxDescriptionLength) return false;
 
     final String cleanCategory = CategoryCopy.normalize(category);
-    if (cleanCategory.isEmpty || !_categories.contains(cleanCategory)) {
+    if (cleanCategory.isEmpty || !_categories.contains(cleanCategory)) return false;
+
+    try {
+      final updatedTask = _items[index].copyWith(
+        title: cleanTitle,
+        description: description.trim(),
+        category: cleanCategory,
+      );
+      final savedTask = await _taskService.updateTask(updatedTask);
+      _items[index] = savedTask.copyWith(subTasks: _items[index].subTasks);
+      notifyListeners();
+      return true;
+    } catch (_) {
       return false;
     }
-
-    _items[index] = _items[index].copyWith(
-      title: cleanTitle,
-      description: description.trim(),
-      category: cleanCategory,
-    );
-    notifyListeners();
-    await _persistTodos();
-    return true;
   }
 
   Future<bool> addSubTask({
     required String taskId,
     required String title,
   }) async {
-    final int index = _items.indexWhere((TodoItem item) => item.id == taskId);
-    if (index == -1) {
-      return false;
-    }
+    final int index = _items.indexWhere((Task item) => item.id == taskId);
+    if (index == -1) return false;
 
     final String cleanTitle = title.trim();
-    if (cleanTitle.isEmpty ||
-        cleanTitle.length > AppConstants.maxSubTaskLength) {
+    if (cleanTitle.isEmpty || cleanTitle.length > AppConstants.maxSubTaskLength) return false;
+
+    try {
+      final draft = Task(title: cleanTitle, parentId: taskId);
+      final added = await _taskService.addTask(draft);
+      
+      final List<Task> updatedSubTasks = List<Task>.from(_items[index].subTasks)..add(added);
+      _items[index] = _items[index].copyWith(subTasks: updatedSubTasks);
+      notifyListeners();
+      return true;
+    } catch (_) {
       return false;
     }
-
-    final List<SubTask> updated = List<SubTask>.from(_items[index].subTasks)
-      ..add(
-        SubTask(
-          id: DateTime.now().microsecondsSinceEpoch.toString(),
-          title: cleanTitle,
-        ),
-      );
-
-    _items[index] = _items[index].copyWith(subTasks: updated);
-    notifyListeners();
-    await _persistTodos();
-    return true;
   }
 
   Future<bool> toggleSubTask({
     required String taskId,
     required String subTaskId,
   }) async {
-    final int index = _items.indexWhere((TodoItem item) => item.id == taskId);
-    if (index == -1) {
+    final int index = _items.indexWhere((Task item) => item.id == taskId);
+    if (index == -1) return false;
+
+    final List<Task> updatedSubTasks = List<Task>.from(_items[index].subTasks);
+    final int subIndex = updatedSubTasks.indexWhere((Task sub) => sub.id == subTaskId);
+    if (subIndex == -1) return false;
+
+    try {
+      final newStatus = !updatedSubTasks[subIndex].isCompleted;
+      final updated = await _taskService.updateTaskCompletion(subTaskId, newStatus);
+      updatedSubTasks[subIndex] = updated;
+      _items[index] = _items[index].copyWith(subTasks: updatedSubTasks);
+      notifyListeners();
+      return true;
+    } catch (_) {
       return false;
     }
-
-    final List<SubTask> updated = List<SubTask>.from(_items[index].subTasks);
-    final int subIndex =
-        updated.indexWhere((SubTask subTask) => subTask.id == subTaskId);
-    if (subIndex == -1) {
-      return false;
-    }
-
-    updated[subIndex] = updated[subIndex].copyWith(
-      isCompleted: !updated[subIndex].isCompleted,
-    );
-
-    _items[index] = _items[index].copyWith(subTasks: updated);
-    notifyListeners();
-    await _persistTodos();
-    return true;
   }
 
   Future<bool> deleteSubTask({
     required String taskId,
     required String subTaskId,
   }) async {
-    final int index = _items.indexWhere((TodoItem item) => item.id == taskId);
-    if (index == -1) {
+    final int index = _items.indexWhere((Task item) => item.id == taskId);
+    if (index == -1) return false;
+
+    try {
+      await _taskService.deleteTask(subTaskId);
+      final List<Task> updatedSubTasks = List<Task>.from(_items[index].subTasks)
+        ..removeWhere((Task sub) => sub.id == subTaskId);
+      _items[index] = _items[index].copyWith(subTasks: updatedSubTasks);
+      notifyListeners();
+      return true;
+    } catch (_) {
       return false;
     }
-
-    final List<SubTask> updated = List<SubTask>.from(_items[index].subTasks)
-      ..removeWhere((SubTask subTask) => subTask.id == subTaskId);
-
-    _items[index] = _items[index].copyWith(subTasks: updated);
-    notifyListeners();
-    await _persistTodos();
-    return true;
-  }
-
-  Future<void> _persistTodos() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    final List<String> encoded =
-        _items.map((TodoItem item) => jsonEncode(item.toMap())).toList();
-
-    await prefs.setStringList(AppConstants.todosStorageKey, encoded);
-  }
-
-  Future<void> _persistCategories() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList(AppConstants.categoriesStorageKey, _categories);
   }
 }

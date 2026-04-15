@@ -7,6 +7,11 @@ class Task {
   final int priorityLevel;
   final String? parentId;
   final DateTime? createdAt;
+  
+  // UI extended properties
+  final String category;
+  final String description;
+  final List<Task> subTasks;
 
   Task({
     this.id,
@@ -17,6 +22,9 @@ class Task {
     this.priorityLevel = 1,
     this.parentId,
     this.createdAt,
+    this.category = 'personal',
+    this.description = '',
+    this.subTasks = const [],
   });
 
   factory Task.fromJson(Map<String, dynamic> json) {
@@ -29,6 +37,11 @@ class Task {
       priorityLevel: json['priority_level'] as int? ?? 1,
       parentId: json['parent_id'] as String?,
       createdAt: json['created_at'] != null ? DateTime.parse(json['created_at'] as String) : null,
+      category: json['category'] as String? ?? 'personal',
+      description: json['description'] as String? ?? '',
+      subTasks: json['subTasks'] != null 
+          ? (json['subTasks'] as List).map((i) => Task.fromJson(i)).toList()
+          : [],
     );
   }
 
@@ -42,6 +55,8 @@ class Task {
       'priority_level': priorityLevel,
       if (parentId != null) 'parent_id': parentId,
       if (createdAt != null) 'created_at': createdAt?.toIso8601String(),
+      'category': category,
+      'description': description,
     };
   }
 
@@ -54,6 +69,9 @@ class Task {
     int? priorityLevel,
     String? parentId,
     DateTime? createdAt,
+    String? category,
+    String? description,
+    List<Task>? subTasks,
   }) {
     return Task(
       id: id ?? this.id,
@@ -64,6 +82,9 @@ class Task {
       priorityLevel: priorityLevel ?? this.priorityLevel,
       parentId: parentId ?? this.parentId,
       createdAt: createdAt ?? this.createdAt,
+      category: category ?? this.category,
+      description: description ?? this.description,
+      subTasks: subTasks ?? this.subTasks,
     );
   }
 }

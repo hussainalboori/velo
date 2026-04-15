@@ -17,9 +17,33 @@ class TaskService {
         .toList();
   }
 
+  /// Fetch subtasks for a parent task
+  Future<List<Task>> getSubTasks(String parentId) async {
+    final response = await _client
+        .from('tasks')
+        .select()
+        .eq('parent_id', parentId)
+        .order('created_at', ascending: true);
+
+    return (response as List<dynamic>)
+        .map((e) => Task.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
   /// Add a new task
   Future<Task> addTask(Task task) async {
     final response = await _client.from('tasks').insert(task.toJson()).select().single();
+    return Task.fromJson(response);
+  }
+
+  /// Update an entire task
+  Future<Task> updateTask(Task task) async {
+    final response = await _client
+        .from('tasks')
+        .update(task.toJson())
+        .eq('id', task.id!)
+        .select()
+        .single();
     return Task.fromJson(response);
   }
 
@@ -34,11 +58,16 @@ class TaskService {
     return Task.fromJson(response);
   }
 
+  /// Delete a task via its ID
+  Future<void> deleteTask(String id) async {
+    await _client.from('tasks').delete().eq('id', id);
+  }
+
   /// Call Edge Function to generate subtasks
-  Future<void> generateSubtasks(String parentId) async {
+  Future<void> generateSubtasks(String taskId, String taskTitle) async {
     await _client.functions.invoke(
       'generate-subtasks',
-      body: {'parent_id': parentId},
+      body: {'taskId': taskId, 'taskTitle': taskTitle},
     );
   }
 }

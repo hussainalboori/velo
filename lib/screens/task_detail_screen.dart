@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:to_do_flutter/core/constants/app_constants.dart';
-import 'package:to_do_flutter/models/todo_item.dart';
+import 'package:to_do_flutter/models/task.dart';
 import 'package:to_do_flutter/providers/todo_provider.dart';
 
 class TaskDetailScreen extends StatefulWidget {
@@ -34,7 +34,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
     super.dispose();
   }
 
-  void _initializeIfNeeded(TodoItem task) {
+  void _initializeIfNeeded(Task task) {
     if (_isInitialized) {
       return;
     }
@@ -113,7 +113,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final TodoProvider provider = context.watch<TodoProvider>();
-    final TodoItem? task = provider.taskById(widget.taskId);
+    final Task? task = provider.taskById(widget.taskId);
 
     if (task == null) {
       return Scaffold(
@@ -291,15 +291,15 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                 )
               else
                 Column(
-                  children: task.subTasks.map((SubTask subTask) {
+                  children: task.subTasks.map((Task subTask) {
                     return Card(
                       margin: const EdgeInsets.only(bottom: 8),
                       child: CheckboxListTile(
                         value: subTask.isCompleted,
                         onChanged: (_) {
                           provider.toggleSubTask(
-                            taskId: task.id,
-                            subTaskId: subTask.id,
+                            taskId: task.id!,
+                            subTaskId: subTask.id!,
                           );
                         },
                         title: Text(
@@ -310,8 +310,8 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                         secondary: IconButton(
                           onPressed: () {
                             provider.deleteSubTask(
-                              taskId: task.id,
-                              subTaskId: subTask.id,
+                              taskId: task.id!,
+                              subTaskId: subTask.id!,
                             );
                           },
                           icon: const Icon(Icons.delete_outline_rounded),
