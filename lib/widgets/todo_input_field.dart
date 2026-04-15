@@ -56,16 +56,16 @@ class _TodoInputFieldState extends State<TodoInputField> {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: const <BoxShadow>[
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: <BoxShadow>[
           BoxShadow(
-            color: Color(0x14000000),
+            color: Colors.black.withOpacity(0.05),
             blurRadius: 20,
-            offset: Offset(0, 8),
+            offset: const Offset(0, 4),
           ),
         ],
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[

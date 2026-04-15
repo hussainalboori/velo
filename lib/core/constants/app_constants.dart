@@ -69,9 +69,9 @@ class AppStrings {
   static const String emptyTitle = 'Nothing queued yet';
   static const String emptyMessage =
       'Capture your first task and build momentum for today.';
-  static const String emptyActiveTitle = 'No active tasks';
+  static const String emptyActiveTitle = "You're all caught up!";
   static const String emptyActiveMessage =
-      'Everything is completed. Add a new task to keep moving.';
+      'Take a break, or add a new task to keep moving.';
   static const String emptyCompletedTitle = 'No completed tasks yet';
   static const String emptyCompletedMessage =
       'Finish a task and it will appear here.';

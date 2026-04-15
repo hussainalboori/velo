@@ -8,7 +8,15 @@ class PaywallScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
-        color: Color(0xFF1E1E2C), // Dark premium color
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: <Color>[
+            Color(0xFFF9F5EC),
+            Color(0xFFE4F1F6),
+            Color(0xFFD6E8D4),
+          ],
+        ),
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       padding: const EdgeInsets.all(24.0),
@@ -29,13 +37,13 @@ class PaywallScreen extends StatelessWidget {
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                       letterSpacing: 2,
-                      color: Colors.amber, // Premium accent
+                      color: const Color(0xFF0F4C5C), // Dark teal premium accent
                     ),
                   ),
                 ),
                 IconButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  icon: const Icon(Icons.close, color: Colors.white70),
+                  icon: const Icon(Icons.close, color: Color(0xFF4B5563)), // Slate
                 ),
               ],
             ),
@@ -46,7 +54,7 @@ class PaywallScreen extends StatelessWidget {
               style: GoogleFonts.inter(
                 fontSize: 28,
                 fontWeight: FontWeight.w800,
-                color: Colors.white,
+                color: const Color(0xFF0D1B2A), // Dark Slate
                 height: 1.2,
               ),
             ),
@@ -61,7 +69,7 @@ class PaywallScreen extends StatelessWidget {
                 // Wire up RevenueCat next
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.amber,
+                backgroundColor: Colors.amber, // Bright Gold Action
                 foregroundColor: Colors.black87,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
@@ -83,8 +91,8 @@ class PaywallScreen extends StatelessWidget {
               child: Text(
                 'Not Now',
                 style: GoogleFonts.inter(
-                  color: Colors.white54,
-                  fontWeight: FontWeight.w500,
+                  color: const Color(0xFF6B7280), // Slate
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),
@@ -102,10 +110,10 @@ class PaywallScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.1),
+              color: Colors.white.withOpacity(0.6), // Glassy white backing
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(icon, color: Colors.amber, size: 24),
+            child: Icon(icon, color: const Color(0xFF0F4C5C), size: 24), // Dark teal icon
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -113,8 +121,8 @@ class PaywallScreen extends StatelessWidget {
               title,
               style: GoogleFonts.inter(
                 fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
+                fontWeight: FontWeight.w700,
+                color: const Color(0xFF1D2939), // Slate
               ),
             ),
           ),

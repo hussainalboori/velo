@@ -21,28 +21,33 @@ class EmptyStateView extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             Container(
-              width: 88,
-              height: 88,
+              width: 100,
+              height: 100,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.8),
+                color: const Color(0xFFF3F4F6),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
-                Icons.task_alt_rounded,
-                size: 42,
-                color: Color(0xFF0F4C5C),
+                Icons.check_circle_outline_rounded,
+                size: 48,
+                color: Color(0xFF9CA3AF),
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 24),
             Text(
               title,
-              style: Theme.of(context).textTheme.titleLarge,
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: const Color(0xFF374151),
+                  ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
             Text(
               message,
-              style: Theme.of(context).textTheme.bodyMedium,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: const Color(0xFF6B7280),
+                  ),
               textAlign: TextAlign.center,
             ),
           ],

@@ -77,18 +77,19 @@ class _FilterChip extends StatelessWidget {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: AppConstants.baseAnimationMs),
           curve: Curves.easeOutCubic,
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(999),
-            color: selected ? const Color(0xFF0F4C5C) : Colors.white,
-            border: Border.all(color: borderColor),
-            boxShadow: const <BoxShadow>[
-              BoxShadow(
-                color: Color(0x14000000),
-                blurRadius: 12,
-                offset: Offset(0, 4),
-              ),
-            ],
+            borderRadius: BorderRadius.circular(30),
+            color: selected ? const Color(0xFF0F4C5C) : const Color(0xFFF3F4F6),
+            boxShadow: selected
+                ? const <BoxShadow>[
+                    BoxShadow(
+                      color: Color(0x330F4C5C),
+                      blurRadius: 12,
+                      offset: Offset(0, 4),
+                    ),
+                  ]
+                : null,
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -96,7 +97,7 @@ class _FilterChip extends StatelessWidget {
               Text(
                 label,
                 style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      color: selected ? Colors.white : const Color(0xFF0D1B2A),
+                      color: selected ? Colors.white : const Color(0xFF4B5563),
                       fontWeight: FontWeight.w700,
                     ),
               ),
