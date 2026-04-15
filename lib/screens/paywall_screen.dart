@@ -1,8 +1,106 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
+import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:to_do_flutter/providers/todo_provider.dart';
 
-class PaywallScreen extends StatelessWidget {
+class PaywallScreen extends StatefulWidget {
   const PaywallScreen({super.key});
+
+  @override
+  State<PaywallScreen> createState() => _PaywallScreenState();
+}
+
+class _PaywallScreenState extends State<PaywallScreen> {
+  bool _isLoading = false;
+  bool _isFinalizing = false;
+
+  Future<void> _processSubscription() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final String? currentUserId = Supabase.instance.client.auth.currentUser?.id;
+      if (currentUserId == null) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Error: You must be logged in to subscribe.')),
+          );
+          setState(() {
+            _isLoading = false;
+          });
+        }
+        return;
+      }
+
+      await Purchases.logIn(currentUserId);
+      final Offerings offerings = await Purchases.getOfferings();
+      if (offerings.current != null &&
+          offerings.current!.availablePackages.isNotEmpty) {
+        final Package package = offerings.current!.availablePackages.first;
+        final PurchaseResult purchaseResult =
+            await Purchases.purchasePackage(package);
+        
+        // Purchase was successful natively if no exception was thrown above.
+        debugPrint('Purchase successful locally. Waiting for webhook... entitlements: ${purchaseResult.customerInfo.entitlements.all.keys}');
+
+        if (mounted) {
+          setState(() {
+            _isFinalizing = true;
+          });
+          final TodoProvider provider = context.read<TodoProvider>();
+          
+          final bool isSynced = await provider.waitForProStatus();
+          
+          if (mounted) {
+            Navigator.of(context).pop();
+            if (isSynced) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Welcome to Pro!')),
+              );
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Your Pro status is being activated. It may take a moment to reflect.')),
+              );
+            }
+          }
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                content: Text('No subscriptions available right now.')),
+          );
+        }
+      }
+    } on PlatformException catch (e) {
+      final PurchasesErrorCode errorCode =
+          PurchasesErrorHelper.getErrorCode(e);
+      if (errorCode != PurchasesErrorCode.purchaseCancelledError) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error: ${e.message}')),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _isFinalizing = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -64,10 +162,7 @@ class PaywallScreen extends StatelessWidget {
             _buildFeatureRow(Icons.cloud_sync, 'Priority Cloud Sync'),
             const SizedBox(height: 48),
             ElevatedButton(
-              onPressed: () {
-                debugPrint('Clicked Subscribe');
-                // Wire up RevenueCat next
-              },
+              onPressed: _isLoading ? null : _processSubscription,
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.amber, // Bright Gold Action
                 foregroundColor: Colors.black87,
@@ -77,13 +172,38 @@ class PaywallScreen extends StatelessWidget {
                 ),
                 elevation: 0,
               ),
-              child: Text(
-                'Subscribe to Pro',
-                style: GoogleFonts.inter(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
+              child: _isLoading
+                  ? Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(
+                            color: Colors.black87,
+                            strokeWidth: 2.5,
+                          ),
+                        ),
+                        if (_isFinalizing) ...[
+                          const SizedBox(width: 12),
+                          Text(
+                            'Finalizing...',
+                            style: GoogleFonts.inter(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ],
+                      ],
+                    )
+                  : Text(
+                      'Subscribe to Pro',
+                      style: GoogleFonts.inter(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
             ),
             const SizedBox(height: 16),
             TextButton(

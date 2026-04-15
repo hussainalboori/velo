@@ -2,6 +2,7 @@
 import 'dart:collection';
 
 import 'package:flutter/foundation.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:to_do_flutter/core/constants/app_constants.dart';
 import 'package:to_do_flutter/models/task.dart';
 import 'package:to_do_flutter/services/task_service.dart';
@@ -18,6 +19,7 @@ class TodoProvider extends ChangeNotifier {
 
   bool _isLoading = true;
   bool _isAdding = false;
+  bool _isPro = false;
   TodoFilter _selectedFilter = TodoFilter.all;
   String _draftCategory = AppConstants.defaultCategories.first;
 
@@ -27,6 +29,7 @@ class TodoProvider extends ChangeNotifier {
 
   bool get isLoading => _isLoading;
   bool get isAdding => _isAdding;
+  bool get isPro => _isPro;
   TodoFilter get selectedFilter => _selectedFilter;
   String get draftCategory => _draftCategory;
 
@@ -54,9 +57,45 @@ class TodoProvider extends ChangeNotifier {
 
   bool isItemBusy(String id) => _busyItemIds.contains(id);
 
+  int _tokensUsed = 0;
+  int get tokensUsed => _tokensUsed;
+
   void setFilter(TodoFilter filter) {
     if (_selectedFilter == filter) return;
     _selectedFilter = filter;
+    notifyListeners();
+  }
+
+  Future<void> refreshProfile() async {
+    try {
+      final user = Supabase.instance.client.auth.currentUser;
+      if (user == null) return;
+      
+      final data = await Supabase.instance.client
+          .from('profiles')
+          .select('tier, tokens_used')
+          .eq('id', user.id)
+          .single();
+          
+      _isPro = data['tier'] == 'pro';
+      _tokensUsed = data['tokens_used'] ?? 0;
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Error refreshing profile: $e');
+    }
+  }
+
+  Future<bool> waitForProStatus() async {
+    for (int i = 0; i < 5; i++) {
+      await Future<void>.delayed(const Duration(seconds: 1));
+      await refreshProfile();
+      if (_isPro) return true;
+    }
+    return false;
+  }
+
+  void setProStatus(bool pro) {
+    _isPro = pro;
     notifyListeners();
   }
 

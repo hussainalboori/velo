@@ -66,8 +66,7 @@ class _FilterChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color borderColor =
-        selected ? const Color(0xFF0F4C5C) : const Color(0x330F4C5C);
+
 
     return Material(
       color: Colors.transparent,

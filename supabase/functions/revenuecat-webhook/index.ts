@@ -3,31 +3,35 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 
 serve(async (req) => {
   try {
-    const payload = await req.json()
-    const event = payload.event
+    // 1. Parse the incoming webhook from RevenueCat
+    const body = await req.json()
+    const event = body.event
 
-    // RevenueCat sends the Supabase Auth UID exactly as we passed it from Flutter
+    if (!event) throw new Error("No event found")
+
+    // The app_user_id is the user's Supabase UUID that we pass to RevenueCat in Flutter
     const userId = event.app_user_id
     const eventType = event.type 
 
-    // We must use the SERVICE_ROLE key here to bypass RLS since this is server-to-server
+    // 2. Wake up the Admin database client (to bypass security rules for billing)
     const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    // Determine the new tier based on the RevenueCat event
     let newTier = 'free'
+
+    // 3. Determine their new status based on what happened
     if (eventType === 'INITIAL_PURCHASE' || eventType === 'RENEWAL') {
       newTier = 'pro'
-    } else if (eventType === 'EXPIRATION' || eventType === 'CANCELLATION' || eventType === 'BILLING_ISSUE') {
+    } else if (eventType === 'CANCELLATION' || eventType === 'EXPIRATION') {
       newTier = 'free'
     } else {
-      // Ignore other events like trial starts or non-critical updates
+      // Ignore other random RevenueCat events (like test pings)
       return new Response(JSON.stringify({ message: "Event ignored" }), { status: 200 })
     }
 
-    // Update the user's profile in the database
+    // 4. Update their profile in the database!
     const { error } = await supabaseAdmin
       .from('profiles')
       .update({ tier: newTier })
@@ -35,9 +39,15 @@ serve(async (req) => {
 
     if (error) throw error
 
-    return new Response(JSON.stringify({ success: true, newTier }), { status: 200, headers: { "Content-Type": "application/json" } })
+    return new Response(JSON.stringify({ success: true, updated_to: newTier }), {
+      headers: { "Content-Type": "application/json" },
+      status: 200,
+    })
 
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), { status: 400 })
+    return new Response(JSON.stringify({ error: error.message }), {
+      headers: { "Content-Type": "application/json" },
+      status: 400,
+    })
   }
 })
