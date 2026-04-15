@@ -2,11 +2,24 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:to_do_flutter/core/constants/app_constants.dart';
 import 'package:to_do_flutter/providers/todo_provider.dart';
+import 'package:to_do_flutter/screens/auth_gate.dart';
 import 'package:to_do_flutter/screens/home_screen.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await Supabase.initialize(
+    url: 'https://mrhgnfncwzswvsponeza.supabase.co',
+    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1yaGduZm5jd3pzd3ZzcG9uZXphIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyMzY1MDksImV4cCI6MjA5MTgxMjUwOX0.TrKDjktCuOWassgHrZLhk0ovN_S1E13pZ1Oj_cQ6hBE',
+  );
+
+  // Use appropriate RevenueCat API key depending on the platform (iOS or Android)
+  await Purchases.configure(PurchasesConfiguration('YOUR_REVENUECAT_APPLE_API_KEY'));
+
   runApp(const TodoPortfolioApp());
 }
 
@@ -61,7 +74,7 @@ class TodoPortfolioApp extends StatelessWidget {
             ),
           ),
         ),
-        home: const HomeScreen(),
+        home: const AuthGate(),
       ),
     );
   }
