@@ -5,12 +5,14 @@ import 'package:to_do_flutter/core/constants/app_constants.dart';
 import 'package:to_do_flutter/models/task.dart';
 import 'package:to_do_flutter/providers/todo_provider.dart';
 import 'package:to_do_flutter/screens/paywall_screen.dart';
+import 'package:to_do_flutter/screens/settings_screen.dart';
 import 'package:to_do_flutter/services/task_service.dart';
 import 'package:to_do_flutter/widgets/empty_state_view.dart';
 import 'package:to_do_flutter/screens/task_detail_screen.dart';
 import 'package:to_do_flutter/widgets/todo_filter_bar.dart';
 import 'package:to_do_flutter/widgets/todo_input_field.dart';
 import 'package:to_do_flutter/widgets/todo_list_view.dart';
+import 'package:to_do_flutter/widgets/smart_banner_ad.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -227,9 +229,26 @@ class _HomeScreenState extends State<HomeScreen> {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    Text(
-                      AppStrings.appTitle,
-                      style: Theme.of(context).textTheme.headlineMedium,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          AppStrings.appTitle,
+                          style: Theme.of(context).textTheme.headlineMedium,
+                        ),
+                        IconButton(
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute<void>(
+                                builder: (_) => const SettingsScreen(),
+                              ),
+                            );
+                          },
+                          icon: const Icon(Icons.settings_outlined, color: Color(0xFF0F4C5C)),
+                          tooltip: 'Settings',
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 4),
                     Text(
@@ -289,7 +308,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                           await TaskService().generateSubtasks(id, taskItem.title);
                                           if (context.mounted) {
                                             _showSnackBar(context, 'Sub-tasks generated!');
-                                            context.read<TodoProvider>().loadTodos();
+                                            await context.read<TodoProvider>().reloadSubTasks(id);
                                           }
                                         } catch (e) {
                                           debugPrint('AI Error: $e');
@@ -299,7 +318,21 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 context: context,
                                                 isScrollControlled: true,
                                                 backgroundColor: Colors.transparent,
-                                                builder: (context) => const PaywallScreen(),
+                                                builder: (sheetContext) => PaywallScreen(
+                                                  onRewardSuccess: () async {
+                                                    _showSnackBar(context, 'Generating your reward...');
+                                                    await Future<void>.delayed(const Duration(milliseconds: 500));
+                                                    try {
+                                                      await TaskService().generateSubtasks(id, taskItem.title);
+                                                      if (context.mounted) {
+                                                        _showSnackBar(context, 'Sub-tasks generated!');
+                                                        await context.read<TodoProvider>().reloadSubTasks(id);
+                                                      }
+                                                    } catch (e) {
+                                                      if (context.mounted) _showSnackBar(context, 'Error: $e');
+                                                    }
+                                                  },
+                                                ),
                                               );
                                             } else {
                                               _showSnackBar(context, 'Error: $e');
@@ -319,6 +352,9 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
       ),
+      bottomNavigationBar: !context.watch<TodoProvider>().isPro 
+          ? const SmartBannerAd() 
+          : const SizedBox.shrink(),
     );
   }
 }

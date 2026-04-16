@@ -88,6 +88,21 @@ serve(async (req) => {
       .update({ tokens_used: profile.tokens_used + 1 })
       .eq('id', user.id)
 
+    // Log the API usage
+    const usage = aiData.usage
+    if (usage) {
+      const { error: usageError } = await supabaseAdmin.from('ai_usage_logs').insert({
+        user_id: user.id,
+        task_id: taskId,
+        prompt_tokens: usage.prompt_tokens,
+        completion_tokens: usage.completion_tokens,
+        total_tokens: usage.total_tokens,
+      })
+      if (usageError) {
+        console.error('Failed to log AI usage:', usageError)
+      }
+    }
+
     return new Response(JSON.stringify({ success: true, message: "Subtasks generated." }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 200,

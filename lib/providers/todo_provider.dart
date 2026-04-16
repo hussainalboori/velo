@@ -60,6 +60,33 @@ class TodoProvider extends ChangeNotifier {
   int _tokensUsed = 0;
   int get tokensUsed => _tokensUsed;
 
+  int _adsWatchedToday = 0;
+  int get adsWatchedToday => _adsWatchedToday;
+
+  DateTime? _lastAdDate;
+  DateTime? get lastAdDate => _lastAdDate;
+
+  int _totalAITokensUsed = 0;
+  int get totalAITokensUsed => _totalAITokensUsed;
+
+  Map<String, int> _dailyUsageAnalytics = {};
+  Map<String, int> get dailyUsageAnalytics => _dailyUsageAnalytics;
+
+  void clearAll() {
+    _items.clear();
+    _categories.clear();
+    _categories.addAll(AppConstants.defaultCategories);
+    _busyItemIds.clear();
+    _dailyUsageAnalytics.clear();
+    _totalAITokensUsed = 0;
+    _tokensUsed = 0;
+    _adsWatchedToday = 0;
+    _lastAdDate = null;
+    _isPro = false;
+    _draftCategory = AppConstants.defaultCategories.first;
+    notifyListeners();
+  }
+
   void setFilter(TodoFilter filter) {
     if (_selectedFilter == filter) return;
     _selectedFilter = filter;
@@ -73,15 +100,69 @@ class TodoProvider extends ChangeNotifier {
       
       final data = await Supabase.instance.client
           .from('profiles')
-          .select('tier, tokens_used')
+          .select('tier, tokens_used, ads_watched_today, last_ad_date')
           .eq('id', user.id)
           .single();
           
+      debugPrint('Supabase profiles payload: $data');
+          
       _isPro = data['tier'] == 'pro';
       _tokensUsed = data['tokens_used'] ?? 0;
+      _adsWatchedToday = data['ads_watched_today'] ?? 0;
+      
+      final rawDate = data['last_ad_date'];
+      _lastAdDate = rawDate != null ? DateTime.parse(rawDate) : null;
+
+      // Ensure calendar day rollover resets ad tracking dynamically
+      if (_lastAdDate != null) {
+        final now = DateTime.now();
+        final lastAdLocal = _lastAdDate!.toLocal();
+        final isDifferentDay = now.year != lastAdLocal.year ||
+            now.month != lastAdLocal.month ||
+            now.day != lastAdLocal.day;
+
+        if (isDifferentDay) {
+          await Supabase.instance.client.rpc('reset_daily_ad_limit');
+          _adsWatchedToday = 0;
+          _lastAdDate = null;
+        }
+      }
+
       notifyListeners();
     } catch (e) {
       debugPrint('Error refreshing profile: $e');
+    }
+  }
+
+  Future<void> loadUsageAnalytics() async {
+    try {
+      final user = Supabase.instance.client.auth.currentUser;
+      if (user == null) return;
+
+      final response = await Supabase.instance.client
+          .from('ai_usage_logs')
+          .select('created_at, total_tokens')
+          .eq('user_id', user.id)
+          .order('created_at', ascending: false);
+
+      int sumTokens = 0;
+      final Map<String, int> usageByDate = {};
+
+      for (final dynamic row in response) {
+        final int tokens = (row['total_tokens'] as int?) ?? 0;
+        sumTokens += tokens;
+
+        final String rawDate = row['created_at'] as String;
+        final String dateKey = rawDate.split('T').first;
+
+        usageByDate[dateKey] = (usageByDate[dateKey] ?? 0) + tokens;
+      }
+
+      _totalAITokensUsed = sumTokens;
+      _dailyUsageAnalytics = usageByDate;
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Error fetching usage analytics: $e');
     }
   }
 
@@ -92,6 +173,24 @@ class TodoProvider extends ChangeNotifier {
       if (_isPro) return true;
     }
     return false;
+  }
+
+  Future<bool> earnAdReward() async {
+    try {
+      final user = Supabase.instance.client.auth.currentUser;
+      if (user == null) return false;
+
+      // Securely decrement via Postgres function securely bypassing read-only RLS limitations
+      await Supabase.instance.client.rpc('decrement_user_tokens');
+      
+      // Sync local state completely with backend
+      await refreshProfile();
+      
+      return true;
+    } catch (e) {
+      debugPrint('Error earning ad reward: $e');
+      return false;
+    }
   }
 
   void setProStatus(bool pro) {
@@ -142,6 +241,9 @@ class TodoProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
+      // Bootstrap the user's profile state to sync tokens and ad tracking dynamically
+      await refreshProfile();
+
       final tasks = await _taskService.getTasks();
       // Fetch subtasks for each task. In a real app we'd do a joined query.
       for (int i = 0; i < tasks.length; i++) {
@@ -214,6 +316,19 @@ class TodoProvider extends ChangeNotifier {
 
     _busyItemIds.remove(id);
     notifyListeners();
+  }
+
+  Future<void> reloadSubTasks(String taskId) async {
+    final int index = _items.indexWhere((Task item) => item.id == taskId);
+    if (index == -1) return;
+
+    try {
+      final subTasks = await _taskService.getSubTasks(taskId);
+      _items[index] = _items[index].copyWith(subTasks: subTasks);
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Error reloading subtasks: $e');
+    }
   }
 
   Future<void> deleteTodo(String id) async {

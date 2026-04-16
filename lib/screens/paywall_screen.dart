@@ -5,9 +5,12 @@ import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:to_do_flutter/providers/todo_provider.dart';
+import 'package:to_do_flutter/services/rewarded_ad_manager.dart';
 
 class PaywallScreen extends StatefulWidget {
-  const PaywallScreen({super.key});
+  final Future<void> Function()? onRewardSuccess;
+
+  const PaywallScreen({super.key, this.onRewardSuccess});
 
   @override
   State<PaywallScreen> createState() => _PaywallScreenState();
@@ -16,6 +19,14 @@ class PaywallScreen extends StatefulWidget {
 class _PaywallScreenState extends State<PaywallScreen> {
   bool _isLoading = false;
   bool _isFinalizing = false;
+  bool _isAdShowing = false;
+  final RewardedAdManager _adManager = RewardedAdManager();
+
+  @override
+  void initState() {
+    super.initState();
+    _adManager.loadAd(); // Instantly start loading the video
+  }
 
   Future<void> _processSubscription() async {
     setState(() {
@@ -206,6 +217,64 @@ class _PaywallScreenState extends State<PaywallScreen> {
                     ),
             ),
             const SizedBox(height: 16),
+            Consumer<TodoProvider>(
+              builder: (context, provider, child) {
+                if (provider.isPro) {
+                  return const SizedBox.shrink();
+                }
+
+                if (provider.adsWatchedToday >= 3) {
+                  return const SizedBox.shrink();
+                }
+
+                return OutlinedButton.icon(
+                  onPressed: _isLoading || _isAdShowing
+                      ? null
+                      : () {
+                          setState(() {
+                            _isAdShowing = true;
+                          });
+                          // Show ad overlay
+                          _adManager.showAd(
+                            onReward: () async {
+                              final success = await context.read<TodoProvider>().earnAdReward();
+                              if (success && mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('1 AI Task Unlocked!')),
+                                );
+                                if (widget.onRewardSuccess != null) {
+                                  widget.onRewardSuccess!();
+                                }
+                              }
+                            },
+                            onClosed: () {
+                              if (mounted) {
+                                setState(() {
+                                  _isAdShowing = false;
+                                });
+                                Navigator.of(context).pop();
+                              }
+                            },
+                          );
+                        },
+                  icon: const Icon(Icons.play_circle_outline),
+                  label: Text(
+                    'Watch Ad for 1 Extra Task',
+                    style: GoogleFonts.inter(fontWeight: FontWeight.w600),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    side: const BorderSide(color: Color(0xFF0F4C5C), width: 2),
+                    foregroundColor: const Color(0xFF0F4C5C),
+                    backgroundColor: Colors.white,
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: 8),
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
               child: Text(
