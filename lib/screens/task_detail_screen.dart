@@ -4,6 +4,9 @@ import 'package:provider/provider.dart';
 import 'package:to_do_flutter/core/constants/app_constants.dart';
 import 'package:to_do_flutter/models/task.dart';
 import 'package:to_do_flutter/providers/todo_provider.dart';
+import 'package:to_do_flutter/services/task_service.dart';
+import 'package:to_do_flutter/screens/paywall_screen.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 class TaskDetailScreen extends StatefulWidget {
   const TaskDetailScreen({
@@ -24,6 +27,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
 
   bool _isInitialized = false;
   bool _isEditing = false;
+  bool _isGeneratingAI = false;
   String? _selectedCategory;
 
   @override
@@ -108,6 +112,55 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  Future<void> _generateSubtasksWithAI(Task task) async {
+    setState(() {
+      _isGeneratingAI = true;
+    });
+    _showSnackBar(context, 'AI is thinking...');
+
+    try {
+      await TaskService().generateSubtasks(task.id!, task.title);
+      if (context.mounted) {
+        _showSnackBar(context, 'Sub-tasks generated!');
+        await context.read<TodoProvider>().reloadSubTasks(task.id!);
+      }
+    } catch (e) {
+      debugPrint('AI Error: $e');
+      if (context.mounted) {
+        if (e.toString().contains('OUT_OF_TOKENS')) {
+          showModalBottomSheet<void>(
+            context: context,
+            isScrollControlled: true,
+            backgroundColor: Colors.transparent,
+            builder: (sheetContext) => PaywallScreen(
+              onRewardSuccess: () async {
+                _showSnackBar(context, 'Generating your reward...');
+                await Future<void>.delayed(const Duration(milliseconds: 500));
+                try {
+                  await TaskService().generateSubtasks(task.id!, task.title);
+                  if (context.mounted) {
+                    _showSnackBar(context, 'Sub-tasks generated!');
+                    await context.read<TodoProvider>().reloadSubTasks(task.id!);
+                  }
+                } catch (e) {
+                  if (context.mounted) _showSnackBar(context, 'Error: $e');
+                }
+              },
+            ),
+          );
+        } else {
+          _showSnackBar(context, 'Error: $e');
+        }
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isGeneratingAI = false;
+        });
+      }
+    }
   }
 
   @override
@@ -279,7 +332,20 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                   const SizedBox(width: 10),
                   FilledButton(
                     onPressed: () => _addSubTask(context),
-                    child: const Text(AppStrings.addSubTaskButton),
+                    child: const Text('Add'),
+                  ),
+                  const SizedBox(width: 4),
+                  IconButton(
+                    onPressed: _isGeneratingAI ? null : () => _generateSubtasksWithAI(task),
+                    tooltip: 'Auto-Generate Subtasks',
+                    icon: _isGeneratingAI
+                        ? const Icon(Icons.auto_awesome, color: Colors.deepPurpleAccent)
+                            .animate(onPlay: (controller) => controller.repeat())
+                            .shimmer(duration: 1000.ms, color: Colors.purpleAccent)
+                            .scaleXY(end: 1.1, duration: 500.ms, curve: Curves.easeInOutSine)
+                            .then()
+                            .scaleXY(end: 1 / 1.1, duration: 500.ms, curve: Curves.easeInOutSine)
+                        : const Icon(Icons.auto_awesome, color: Colors.deepPurpleAccent),
                   ),
                 ],
               ),

@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:to_do_flutter/core/constants/app_constants.dart';
 import 'package:to_do_flutter/models/task.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 class TodoListItem extends StatelessWidget {
   const TodoListItem({
@@ -26,7 +27,7 @@ class TodoListItem extends StatelessWidget {
     final Color borderColor =
         item.isCompleted ? const Color(0x7A4CAF50) : Colors.transparent;
 
-    return AnimatedOpacity(
+    Widget widgetTree = AnimatedOpacity(
       duration: const Duration(milliseconds: AppConstants.baseAnimationMs),
       opacity: isBusy ? 0.4 : 1.0,
       curve: Curves.easeOut,
@@ -127,32 +128,29 @@ class TodoListItem extends StatelessWidget {
                   const SizedBox(width: 8),
 
                   // --- Trailing Actions ---
-                  AnimatedSwitcher(
-                    duration: const Duration(milliseconds: AppConstants.baseAnimationMs),
-                    child: isBusy
-                        ? const SizedBox(
-                            key: ValueKey<String>('item_loading'),
-                            width: 24,
-                            height: 24,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              IconButton(
-                                key: const ValueKey<String>('item_ai'),
-                                tooltip: 'Generate Sub-tasks with AI',
-                                onPressed: onGenerateAI,
-                                icon: const Icon(Icons.auto_awesome, color: Colors.deepPurpleAccent),
-                              ),
-                              IconButton(
-                                key: const ValueKey<String>('item_delete'),
-                                tooltip: AppStrings.deleteTooltip,
-                                onPressed: onDelete,
-                                icon: const Icon(Icons.delete_outline_rounded, color: Colors.black54),
-                              ),
-                            ],
-                          ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        key: const ValueKey<String>('item_ai'),
+                        tooltip: 'Generate Sub-tasks with AI',
+                        onPressed: isBusy ? null : onGenerateAI,
+                        icon: isBusy
+                            ? const Icon(Icons.auto_awesome, color: Colors.deepPurpleAccent)
+                                .animate(onPlay: (controller) => controller.repeat())
+                                .shimmer(duration: 1000.ms, color: Colors.purpleAccent)
+                                .scaleXY(end: 1.1, duration: 500.ms, curve: Curves.easeInOutSine)
+                                .then()
+                                .scaleXY(end: 1 / 1.1, duration: 500.ms, curve: Curves.easeInOutSine)
+                            : const Icon(Icons.auto_awesome, color: Colors.deepPurpleAccent),
+                      ),
+                      IconButton(
+                        key: const ValueKey<String>('item_delete'),
+                        tooltip: AppStrings.deleteTooltip,
+                        onPressed: isBusy ? null : onDelete,
+                        icon: const Icon(Icons.delete_outline_rounded, color: Colors.black54),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -161,5 +159,13 @@ class TodoListItem extends StatelessWidget {
         ),
       ),
     );
+
+    if (item.isCompleted) {
+      widgetTree = widgetTree.animate()
+          .shimmer(duration: 500.ms, color: const Color(0x334CAF50))
+          .scaleXY(begin: 1.02, end: 1.0, duration: 300.ms, curve: Curves.easeOutBack);
+    }
+    
+    return widgetTree;
   }
 }

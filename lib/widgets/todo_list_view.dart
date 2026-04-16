@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:to_do_flutter/core/constants/app_constants.dart';
 import 'package:to_do_flutter/models/task.dart';
 import 'package:to_do_flutter/widgets/todo_list_item.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 class TodoListView extends StatelessWidget {
   const TodoListView({
@@ -30,33 +31,18 @@ class TodoListView extends StatelessWidget {
       separatorBuilder: (_, __) => const SizedBox(height: 10),
       itemBuilder: (BuildContext context, int index) {
         final Task item = items[index];
-        final int delay = (AppConstants.baseAnimationMs +
-                (index * AppConstants.itemEntranceAnimationStepMs))
+        final int delay = (index * AppConstants.itemEntranceAnimationStepMs)
             .clamp(0, AppConstants.longAnimationMs + 240);
 
-        return TweenAnimationBuilder<double>(
-          duration: Duration(milliseconds: delay),
-          tween: Tween<double>(begin: 0, end: 1),
-          curve: Curves.easeOutCubic,
-          builder: (BuildContext context, double value, Widget? child) {
-            return Opacity(
-              opacity: value,
-              child: Transform.translate(
-                offset: Offset(0, (1 - value) * 16),
-                child: child,
-              ),
-            );
-          },
-          child: TodoListItem(
-            key: ValueKey<String>(item.id!),
-            item: item,
-            isBusy: busyIds.contains(item.id),
-            onToggle: () => onToggle(item.id!),
-            onDelete: () => onDelete(item.id!),
-            onGenerateAI: () => onGenerateAI(item.id!),
-            onTap: () => onTapTask(item),
-          ),
-        );
+        return TodoListItem(
+          key: ValueKey<String>(item.id!),
+          item: item,
+          isBusy: busyIds.contains(item.id),
+          onToggle: () => onToggle(item.id!),
+          onDelete: () => onDelete(item.id!),
+          onGenerateAI: () => onGenerateAI(item.id!),
+          onTap: () => onTapTask(item),
+        ).animate().fade(duration: 400.ms, delay: delay.ms).slideY(begin: 0.15, end: 0, duration: 400.ms, curve: Curves.easeOutCubic);
       },
     );
   }
