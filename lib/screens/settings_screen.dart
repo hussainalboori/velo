@@ -60,15 +60,15 @@ class SettingsScreen extends StatelessWidget {
     final isPro = context.watch<TodoProvider>().isPro;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF9F5EC),
+      backgroundColor: const Color(0xFF0A0A0A),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Color(0xFF0F4C5C)),
+        iconTheme: const IconThemeData(color: Colors.white),
         title: Text(
           'Settings',
           style: GoogleFonts.spaceGrotesk(
-            color: const Color(0xFF0D1B2A),
+            color: Colors.white,
             fontWeight: FontWeight.w700,
           ),
         ),
@@ -83,41 +83,34 @@ class SettingsScreen extends StatelessWidget {
               fontSize: 12,
               fontWeight: FontWeight.w700,
               letterSpacing: 1.2,
-              color: const Color(0xFF6B7280),
+              color: const Color(0xFFB3B3B3),
             ),
           ),
           const SizedBox(height: 8),
           Container(
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: const Color(0xFF161616),
               borderRadius: BorderRadius.circular(16),
-              boxShadow: const [
-                BoxShadow(
-                  color: Color(0x05000000),
-                  blurRadius: 10,
-                  offset: Offset(0, 4),
-                ),
-              ],
             ),
             child: Column(
               children: [
                 ListTile(
                   leading: const CircleAvatar(
-                    backgroundColor: Color(0xFFE4F1F6),
-                    child: Icon(Icons.person_outline, color: Color(0xFF0F4C5C)),
+                    backgroundColor: Color(0xFF2E2E2E),
+                    child: Icon(Icons.person_outline, color: Color(0xFF00F2FF)),
                   ),
                   title: Text(
                     user?.email ?? 'Unknown User',
                     style: GoogleFonts.inter(
                       fontWeight: FontWeight.w600,
-                      color: const Color(0xFF0D1B2A),
+                      color: Colors.white,
                     ),
                   ),
                   subtitle: Text(
                     isPro ? 'Pro Subscription' : 'Free Tier',
                     style: GoogleFonts.inter(
-                      color: isPro ? const Color(0xFFB8860B) : const Color(0xFF6B7280),
-                      fontWeight: isPro ? FontWeight.w600 : FontWeight.normal,
+                      color: isPro ? const Color(0xFFFFD700) : const Color(0xFFB3B3B3),
+                      fontWeight: isPro ? FontWeight.bold : FontWeight.normal,
                     ),
                   ),
                 ),
@@ -133,21 +126,14 @@ class SettingsScreen extends StatelessWidget {
               fontSize: 12,
               fontWeight: FontWeight.w700,
               letterSpacing: 1.2,
-              color: const Color(0xFF6B7280),
+              color: const Color(0xFFB3B3B3),
             ),
           ),
           const SizedBox(height: 8),
           Container(
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: const Color(0xFF161616),
               borderRadius: BorderRadius.circular(16),
-              boxShadow: const [
-                BoxShadow(
-                  color: Color(0x05000000),
-                  blurRadius: 10,
-                  offset: Offset(0, 4),
-                ),
-              ],
             ),
             child: ListTile(
               onTap: () {
@@ -160,16 +146,16 @@ class SettingsScreen extends StatelessWidget {
               leading: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFE4F1F6),
+                  color: const Color(0xFF2E2E2E),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Icon(Icons.analytics_outlined, color: Color(0xFF0F4C5C), size: 20),
+                child: const Icon(Icons.analytics_outlined, color: Color(0xFF00F2FF), size: 20),
               ),
               title: Text(
                 'AI Usage Dashboard',
                 style: GoogleFonts.inter(
                   fontWeight: FontWeight.w600,
-                  color: const Color(0xFF0D1B2A),
+                  color: Colors.white,
                 ),
               ),
               trailing: const Icon(Icons.chevron_right, color: Color(0xFF9CA3AF)),
@@ -186,8 +172,8 @@ class SettingsScreen extends StatelessWidget {
               style: GoogleFonts.inter(fontWeight: FontWeight.w600),
             ),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red.shade50,
-              foregroundColor: Colors.red.shade600,
+              backgroundColor: const Color(0xFF2A0808),
+              foregroundColor: const Color(0xFFFF4444),
               elevation: 0,
               padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(

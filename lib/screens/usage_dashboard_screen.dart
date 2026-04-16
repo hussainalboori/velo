@@ -38,15 +38,15 @@ class _UsageDashboardScreenState extends State<UsageDashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF9F5EC),
+      backgroundColor: const Color(0xFF0A0A0A),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Color(0xFF0F4C5C)),
+        iconTheme: const IconThemeData(color: Colors.white),
         title: Text(
           'API Usage',
           style: GoogleFonts.spaceGrotesk(
-            color: const Color(0xFF0D1B2A),
+            color: Colors.white,
             fontWeight: FontWeight.w700,
           ),
         ),
@@ -72,7 +72,7 @@ class _UsageDashboardScreenState extends State<UsageDashboardScreen> {
                         style: GoogleFonts.inter(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
-                          color: const Color(0xFF0D1B2A),
+                          color: const Color(0xFFB3B3B3),
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -89,21 +89,21 @@ class _UsageDashboardScreenState extends State<UsageDashboardScreen> {
                                   filter: ImageFilter.blur(sigmaX: 4.0, sigmaY: 4.0),
                                   child: Container(
                                     decoration: BoxDecoration(
-                                      color: Colors.white.withValues(alpha: 0.3),
+                                      color: const Color(0xFF0A0A0A).withValues(alpha: 0.4),
                                       borderRadius: BorderRadius.circular(24),
                                     ),
                                     child: Center(
                                       child: Column(
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
-                                          const Icon(Icons.lock_outline, size: 48, color: Color(0xFF0D1B2A)),
+                                          const Icon(Icons.lock_outline, size: 48, color: Colors.white),
                                           const SizedBox(height: 16),
                                           Text(
                                             'Unlock Advanced Metrics',
                                             style: GoogleFonts.spaceGrotesk(
                                               fontSize: 20,
                                               fontWeight: FontWeight.bold,
-                                              color: const Color(0xFF0D1B2A),
+                                              color: Colors.white,
                                             ),
                                           ),
                                           const SizedBox(height: 24),
@@ -117,7 +117,7 @@ class _UsageDashboardScreenState extends State<UsageDashboardScreen> {
                                               );
                                             },
                                             style: ElevatedButton.styleFrom(
-                                              backgroundColor: Colors.amber,
+                                              backgroundColor: const Color(0xFF00F2FF),
                                               foregroundColor: Colors.black87,
                                               padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                                               shape: RoundedRectangleBorder(
@@ -156,28 +156,21 @@ class _UsageDashboardScreenState extends State<UsageDashboardScreen> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: const Color(0xFF161616),
         borderRadius: BorderRadius.circular(20),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x0A000000),
-            blurRadius: 16,
-            offset: Offset(0, 4),
-          ),
-        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Icon(Icons.auto_awesome, color: Color(0xFF0F4C5C)),
+              const Icon(Icons.auto_awesome, color: Color(0xFF00F2FF)),
               const SizedBox(width: 8),
               Text(
                 'Current Session Limit',
                 style: GoogleFonts.inter(
                   fontSize: 16,
-                  color: const Color(0xFF6B7280),
+                  color: const Color(0xFFB3B3B3),
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -188,7 +181,7 @@ class _UsageDashboardScreenState extends State<UsageDashboardScreen> {
             '$tokensUsed / $limit',
             style: GoogleFonts.spaceGrotesk(
               fontSize: 32,
-              color: const Color(0xFF0D1B2A),
+              color: Colors.white,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -196,7 +189,7 @@ class _UsageDashboardScreenState extends State<UsageDashboardScreen> {
             'AI Sub-tasks Used ($remaining remaining)',
             style: GoogleFonts.inter(
               fontSize: 14,
-              color: const Color(0xFF6B7280),
+              color: const Color(0xFFB3B3B3),
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -233,25 +226,18 @@ class _UsageDashboardScreenState extends State<UsageDashboardScreen> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: const Color(0xFF161616),
         borderRadius: BorderRadius.circular(20),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x0A000000),
-            blurRadius: 16,
-            offset: Offset(0, 4),
-          ),
-        ],
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: const Color(0xFFE4F1F6),
+              color: const Color(0xFF2E2E2E),
               borderRadius: BorderRadius.circular(16),
             ),
-            child: Icon(icon, color: const Color(0xFF0F4C5C), size: 32),
+            child: Icon(icon, color: const Color(0xFF00F2FF), size: 32),
           ),
           const SizedBox(width: 20),
           Expanded(
@@ -262,7 +248,7 @@ class _UsageDashboardScreenState extends State<UsageDashboardScreen> {
                   title,
                   style: GoogleFonts.inter(
                     fontSize: 14,
-                    color: const Color(0xFF6B7280),
+                    color: const Color(0xFFB3B3B3),
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -271,7 +257,7 @@ class _UsageDashboardScreenState extends State<UsageDashboardScreen> {
                   value,
                   style: GoogleFonts.spaceGrotesk(
                     fontSize: 28,
-                    color: const Color(0xFF0D1B2A),
+                    color: Colors.white,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -296,15 +282,8 @@ class _UsageDashboardScreenState extends State<UsageDashboardScreen> {
       padding: const EdgeInsets.all(24),
       height: 300,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: const Color(0xFF161616),
         borderRadius: BorderRadius.circular(20),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x0A000000),
-            blurRadius: 16,
-            offset: Offset(0, 4),
-          ),
-        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -313,17 +292,17 @@ class _UsageDashboardScreenState extends State<UsageDashboardScreen> {
             '30-Day Usage Trend',
             style: GoogleFonts.inter(
               fontSize: 14,
-              color: const Color(0xFF6B7280),
+              color: const Color(0xFFB3B3B3),
               fontWeight: FontWeight.w600,
             ),
           ),
           const SizedBox(height: 24),
           Expanded(
             child: spots.isEmpty
-                ? Center(
+                ? const Center(
                     child: Text(
                       'No usage data to plot.',
-                      style: TextStyle(color: Colors.grey.shade500),
+                      style: TextStyle(color: Color(0xFFB3B3B3)),
                     ),
                   )
                 : LineChart(
@@ -342,13 +321,13 @@ class _UsageDashboardScreenState extends State<UsageDashboardScreen> {
                         LineChartBarData(
                           spots: spots,
                           isCurved: true,
-                          color: const Color(0xFF0F4C5C),
+                          color: const Color(0xFF00F2FF),
                           barWidth: 4,
                           isStrokeCapRound: true,
                           dotData: const FlDotData(show: true),
                           belowBarData: BarAreaData(
                             show: true,
-                            color: const Color(0xFF0F4C5C).withValues(alpha: 0.1),
+                            color: const Color(0xFF00F2FF).withValues(alpha: 0.1),
                           ),
                         ),
                       ],

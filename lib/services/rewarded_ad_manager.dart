@@ -1,13 +1,15 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class RewardedAdManager {
   RewardedAd? _rewardedAd;
   bool _isAdLoaded = false;
   bool _isShowing = false;
 
-  // Android Test Ad Unit ID for Rewarded Ads
-  final String adUnitId = 'ca-app-pub-3940256099942544/5224354917';
+  // Ad Unit ID pulled dynamically based on OS platform
+  final String adUnitId = dotenv.env[Platform.isAndroid ? 'ADMOB_ANDROID_KEY' : 'ADMOB_IOS_KEY'] ?? '';
 
   void loadAd() {
     RewardedAd.load(
