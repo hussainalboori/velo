@@ -1,4 +1,7 @@
 /// Role: Centralizes app-wide constants, keys, and all user-facing copy.
+import 'dart:io';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 class AppConstants {
   static const String todosStorageKey = 'todos_storage_key_v1';
   static const String categoriesStorageKey = 'categories_storage_key_v1';
@@ -15,6 +18,16 @@ class AppConstants {
   static const int itemEntranceAnimationStepMs = 35;
   static const int baseAnimationMs = 280;
   static const int longAnimationMs = 450;
+}
+
+class EnvConfig {
+  static String get adMobRewardedId {
+    return dotenv.env[Platform.isAndroid ? 'ADMOB_REWARDED_ANDROID' : 'ADMOB_REWARDED_IOS'] ?? '';
+  }
+
+  static String get adMobBannerId {
+    return dotenv.env[Platform.isAndroid ? 'ADMOB_BANNER_ANDROID' : 'ADMOB_BANNER_IOS'] ?? '';
+  }
 }
 
 class AppStrings {

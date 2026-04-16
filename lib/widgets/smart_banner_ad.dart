@@ -1,7 +1,6 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:to_do_flutter/core/constants/app_constants.dart';
 
 class SmartBannerAd extends StatefulWidget {
   const SmartBannerAd({super.key});
@@ -14,8 +13,8 @@ class _SmartBannerAdState extends State<SmartBannerAd> {
   BannerAd? _bannerAd;
   bool _isLoaded = false;
 
-  // Ad Unit ID pulled dynamically based on OS platform
-  final String adUnitId = dotenv.env[Platform.isAndroid ? 'ADMOB_ANDROID_KEY' : 'ADMOB_IOS_KEY'] ?? '';
+  // Ad Unit ID pulled dynamically based on OS platform via EnvConfig
+  final String adUnitId = EnvConfig.adMobBannerId;
 
   @override
   void initState() {
