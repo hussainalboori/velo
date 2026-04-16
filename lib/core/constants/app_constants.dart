@@ -18,8 +18,8 @@ class AppConstants {
 }
 
 class AppStrings {
-  static const String appTitle = 'Momentum Tasks';
-  static const String appSubtitle = 'Plan clearly. Ship confidently.';
+  static const String appTitle = 'Velo';
+  static const String appSubtitle = 'Accelerate your productivity with AI.';
 
   static const String filterAll = 'All';
   static const String filterActive = 'Active';
@@ -67,8 +67,7 @@ class AppStrings {
   static const String descriptionSaveError = 'Description is too long.';
 
   static const String emptyTitle = 'Nothing queued yet';
-  static const String emptyMessage =
-      'Capture your first task and build momentum for today.';
+  static const String emptyMessage = 'Velo: Accelerate your productivity with AI.';
   static const String emptyActiveTitle = "You're all caught up!";
   static const String emptyActiveMessage =
       'Take a break, or add a new task to keep moving.';

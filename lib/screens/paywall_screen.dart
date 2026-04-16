@@ -117,15 +117,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
   Widget build(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: <Color>[
-            Color(0xFFF9F5EC),
-            Color(0xFFE4F1F6),
-            Color(0xFFD6E8D4),
-          ],
-        ),
+        color: Color(0xFF141414), // Darker inner surface
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       padding: const EdgeInsets.all(24.0),
@@ -146,13 +138,13 @@ class _PaywallScreenState extends State<PaywallScreen> {
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                       letterSpacing: 2,
-                      color: const Color(0xFF0F4C5C), // Dark teal premium accent
+                      color: const Color(0xFF00F2FF), // Velocity Teal
                     ),
                   ),
                 ),
                 IconButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  icon: const Icon(Icons.close, color: Color(0xFF4B5563)), // Slate
+                  icon: const Icon(Icons.close, color: Color(0xFFA0AAB2)), // Light Slate
                 ),
               ],
             ),
@@ -163,7 +155,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
               style: GoogleFonts.inter(
                 fontSize: 28,
                 fontWeight: FontWeight.w800,
-                color: const Color(0xFF0D1B2A), // Dark Slate
+                color: const Color(0xFFFFFFFF), // White
                 height: 1.2,
               ),
             ),
@@ -267,9 +259,9 @@ class _PaywallScreenState extends State<PaywallScreen> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    side: const BorderSide(color: Color(0xFF0F4C5C), width: 2),
-                    foregroundColor: const Color(0xFF0F4C5C),
-                    backgroundColor: Colors.white,
+                    side: const BorderSide(color: Color(0xFF00F2FF), width: 2),
+                    foregroundColor: const Color(0xFF00F2FF),
+                    backgroundColor: const Color(0xFF141414),
                   ),
                 );
               },
@@ -299,10 +291,10 @@ class _PaywallScreenState extends State<PaywallScreen> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.6), // Glassy white backing
+              color: const Color(0xFF00F2FF).withOpacity(0.1), // Velocity Teal backing
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(icon, color: const Color(0xFF0F4C5C), size: 24), // Dark teal icon
+            child: Icon(icon, color: const Color(0xFF00F2FF), size: 24), // Velocity Teal icon
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -311,7 +303,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
               style: GoogleFonts.inter(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
-                color: const Color(0xFF1D2939), // Slate
+                color: const Color(0xFFE0E0E0), // Light slate
               ),
             ),
           ),

@@ -205,18 +205,8 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFF0A0A0A),
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: <Color>[
-              Color(0xFFF9F5EC),
-              Color(0xFFE4F1F6),
-              Color(0xFFD6E8D4),
-            ],
-          ),
-        ),
         child: SafeArea(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(20, 18, 20, 14),
@@ -245,7 +235,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                             );
                           },
-                          icon: const Icon(Icons.settings_outlined, color: Color(0xFF0F4C5C)),
+                          icon: const Icon(Icons.settings_outlined, color: Color(0xFF00F2FF)),
                           tooltip: 'Settings',
                         ),
                       ],

@@ -163,6 +163,29 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
     }
   }
 
+  InputDecoration _buildInputDecoration(String hint) {
+    return InputDecoration(
+      hintText: hint,
+      hintStyle: const TextStyle(color: Color(0xFFB3B3B3)),
+      filled: true,
+      fillColor: const Color(0xFF161616),
+      contentPadding: const EdgeInsets.all(16),
+      border: OutlineInputBorder(
+        borderSide: BorderSide.none,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderSide: BorderSide.none,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderSide: const BorderSide(color: Color(0xFF00F2FF), width: 1.5),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      counterText: '',
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final TodoProvider provider = context.watch<TodoProvider>();
@@ -170,15 +193,19 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
 
     if (task == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text(AppStrings.taskDetailsTitle)),
-        body: const Center(child: Text(AppStrings.emptyTitle)),
+        backgroundColor: const Color(0xFF0A0A0A),
+        appBar: AppBar(title: const Text(AppStrings.taskDetailsTitle), backgroundColor: const Color(0xFF0A0A0A), foregroundColor: Colors.white),
+        body: const Center(child: Text(AppStrings.emptyTitle, style: TextStyle(color: Colors.white))),
       );
     }
 
     _initializeIfNeeded(task);
 
     return Scaffold(
+      backgroundColor: const Color(0xFF0A0A0A),
       appBar: AppBar(
+        backgroundColor: const Color(0xFF0A0A0A),
+        foregroundColor: Colors.white,
         title: const Text(AppStrings.taskDetailsTitle),
         actions: <Widget>[
           TextButton(
@@ -206,6 +233,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
               _isEditing
                   ? AppStrings.taskSaveTopButton
                   : AppStrings.taskEditButton,
+              style: const TextStyle(color: Color(0xFF00F2FF), fontWeight: FontWeight.bold),
             ),
           ),
         ],
@@ -225,16 +253,15 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                 TextField(
                   controller: _titleController,
                   maxLength: AppConstants.maxTodoLength,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                  ),
+                  style: const TextStyle(color: Colors.white),
+                  decoration: _buildInputDecoration('Task name'),
                 )
               else
                 Text(
                   task.title,
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 24),
               Text(
                 AppStrings.categoryLabel,
                 style: Theme.of(context).textTheme.labelLarge,
@@ -243,6 +270,8 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
               if (_isEditing)
                 DropdownButtonFormField<String>(
                   isExpanded: true,
+                  dropdownColor: const Color(0xFF161616),
+                  style: const TextStyle(color: Colors.white),
                   value: provider.categories.contains(_selectedCategory)
                       ? _selectedCategory
                       : (provider.categories.isNotEmpty
@@ -277,16 +306,14 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                       _selectedCategory = value;
                     });
                   },
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                  ),
+                  decoration: _buildInputDecoration(''),
                 )
               else
                 Text(
                   CategoryCopy.label(task.category),
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 24),
               Text(
                 AppStrings.taskDescriptionLabel,
                 style: Theme.of(context).textTheme.labelLarge,
@@ -297,59 +324,70 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                   controller: _descriptionController,
                   maxLines: 4,
                   maxLength: AppConstants.maxDescriptionLength,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    hintText: AppStrings.taskDescriptionHint,
-                  ),
+                  style: const TextStyle(color: Colors.white),
+                  decoration: _buildInputDecoration(AppStrings.taskDescriptionHint),
                 )
               else
                 Text(
                   task.description.isEmpty
                       ? AppStrings.taskDescriptionHint
                       : task.description,
-                  style: Theme.of(context).textTheme.bodyMedium,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: task.description.isEmpty ? const Color(0xFFB3B3B3) : const Color(0xFFE0E0E0),
+                  ),
                 ),
-              const SizedBox(height: 22),
+              const SizedBox(height: 32),
               Text(
                 AppStrings.subTasksLabel,
                 style: Theme.of(context).textTheme.titleMedium,
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 12),
               Row(
                 children: <Widget>[
                   Expanded(
                     child: TextField(
                       controller: _subTaskController,
                       maxLength: AppConstants.maxSubTaskLength,
-                      decoration: const InputDecoration(
-                        hintText: AppStrings.subTaskHint,
-                        border: OutlineInputBorder(),
-                        counterText: '',
-                      ),
+                      style: const TextStyle(color: Colors.white),
+                      decoration: _buildInputDecoration(AppStrings.subTaskHint),
                       onSubmitted: (_) => _addSubTask(context),
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 12),
                   FilledButton(
                     onPressed: () => _addSubTask(context),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: const Color(0xFF00F2FF),
+                      foregroundColor: const Color(0xFF0A0A0A),
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                      textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    ),
                     child: const Text('Add'),
                   ),
-                  const SizedBox(width: 4),
-                  IconButton(
-                    onPressed: _isGeneratingAI ? null : () => _generateSubtasksWithAI(task),
-                    tooltip: 'Auto-Generate Subtasks',
-                    icon: _isGeneratingAI
-                        ? const Icon(Icons.auto_awesome, color: Colors.deepPurpleAccent)
-                            .animate(onPlay: (controller) => controller.repeat())
-                            .shimmer(duration: 1000.ms, color: Colors.purpleAccent)
-                            .scaleXY(end: 1.1, duration: 500.ms, curve: Curves.easeInOutSine)
-                            .then()
-                            .scaleXY(end: 1 / 1.1, duration: 500.ms, curve: Curves.easeInOutSine)
-                        : const Icon(Icons.auto_awesome, color: Colors.deepPurpleAccent),
+                  const SizedBox(width: 8),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF00F2FF).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: IconButton(
+                      onPressed: _isGeneratingAI ? null : () => _generateSubtasksWithAI(task),
+                      tooltip: 'Auto-Generate Subtasks',
+                      padding: const EdgeInsets.all(12),
+                      iconSize: 26,
+                      icon: _isGeneratingAI
+                          ? const Icon(Icons.auto_awesome, color: Color(0xFF00F2FF))
+                              .animate(onPlay: (controller) => controller.repeat())
+                              .shimmer(duration: 1000.ms, color: Colors.white)
+                              .scaleXY(end: 1.1, duration: 500.ms, curve: Curves.easeInOutSine)
+                              .then()
+                              .scaleXY(end: 1 / 1.1, duration: 500.ms, curve: Curves.easeInOutSine)
+                          : const Icon(Icons.auto_awesome, color: Color(0xFF00F2FF)),
+                    ),
                   ),
                 ],
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 16),
               if (task.subTasks.isEmpty)
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: 12),
@@ -358,31 +396,46 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
               else
                 Column(
                   children: task.subTasks.map((Task subTask) {
-                    return Card(
+                    return Container(
                       margin: const EdgeInsets.only(bottom: 8),
-                      child: CheckboxListTile(
-                        value: subTask.isCompleted,
-                        onChanged: (_) {
-                          provider.toggleSubTask(
-                            taskId: task.id!,
-                            subTaskId: subTask.id!,
-                          );
-                        },
-                        title: Text(
-                          subTask.title,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        secondary: IconButton(
-                          onPressed: () {
-                            provider.deleteSubTask(
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF161616),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.transparent, width: 0),
+                      ),
+                      clipBehavior: Clip.hardEdge,
+                      child: Material(
+                        color: Colors.transparent,
+                        child: CheckboxListTile(
+                          value: subTask.isCompleted,
+                          activeColor: const Color(0xFF00F2FF),
+                          checkColor: const Color(0xFF0A0A0A),
+                          onChanged: (_) {
+                            provider.toggleSubTask(
                               taskId: task.id!,
                               subTaskId: subTask.id!,
                             );
                           },
-                          icon: const Icon(Icons.delete_outline_rounded),
+                          title: Text(
+                            subTask.title,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: subTask.isCompleted ? const Color(0xFFB3B3B3) : Colors.white,
+                              decoration: subTask.isCompleted ? TextDecoration.lineThrough : null,
+                            ),
+                          ),
+                          secondary: IconButton(
+                            onPressed: () {
+                              provider.deleteSubTask(
+                                taskId: task.id!,
+                                subTaskId: subTask.id!,
+                              );
+                            },
+                            icon: const Icon(Icons.delete_outline_rounded, color: Color(0xFFB3B3B3)),
+                          ),
+                          controlAffinity: ListTileControlAffinity.leading,
                         ),
-                        controlAffinity: ListTileControlAffinity.leading,
                       ),
                     );
                   }).toList(),

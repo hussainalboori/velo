@@ -39,7 +39,7 @@ class TodoPortfolioApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final TextTheme textTheme = GoogleFonts.spaceGroteskTextTheme(
-      ThemeData.light(useMaterial3: true).textTheme,
+      ThemeData.dark(useMaterial3: true).textTheme,
     );
 
     return ChangeNotifierProvider<TodoProvider>(
@@ -47,26 +47,30 @@ class TodoPortfolioApp extends StatelessWidget {
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: AppStrings.appTitle,
+        themeMode: ThemeMode.dark,
         theme: ThemeData(
           useMaterial3: true,
+          scaffoldBackgroundColor: const Color(0xFF0A0A0A),
           colorScheme: ColorScheme.fromSeed(
-            seedColor: const Color(0xFF0F4C5C),
-            brightness: Brightness.light,
+            seedColor: const Color(0xFF00F2FF),
+            brightness: Brightness.dark,
+            surface: const Color(0xFF0A0A0A),
           ),
           textTheme: textTheme.copyWith(
             headlineMedium: textTheme.headlineMedium?.copyWith(
               fontWeight: FontWeight.w700,
-              color: const Color(0xFF0D1B2A),
+              color: const Color(0xFFFFFFFF),
             ),
             titleLarge: textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.w700,
-              color: const Color(0xFF0D1B2A),
+              color: const Color(0xFFFFFFFF),
             ),
             titleMedium: textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.w600,
+              color: const Color(0xFFE0E0E0),
             ),
             bodyMedium: textTheme.bodyMedium?.copyWith(
-              color: const Color(0xFF425466),
+              color: const Color(0xFFA0AAB2),
             ),
           ),
           snackBarTheme: SnackBarThemeData(

@@ -30,6 +30,14 @@ class _TodoInputFieldState extends State<TodoInputField> {
   final TextEditingController _controller = TextEditingController();
   final FocusNode _focusNode = FocusNode();
 
+  @override
+  void initState() {
+    super.initState();
+    _focusNode.addListener(() {
+      setState(() {});
+    });
+  }
+
   Future<void> _submit() async {
     final String value = _controller.text;
     final bool didAdd = await widget.onSubmit(value, widget.selectedCategory);
@@ -55,15 +63,12 @@ class _TodoInputFieldState extends State<TodoInputField> {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: const Color(0xFF161616),
         borderRadius: BorderRadius.circular(24),
-        boxShadow: <BoxShadow>[
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 20,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        border: Border.all(
+          color: _focusNode.hasFocus ? const Color(0xFF00F2FF) : Colors.transparent,
+          width: 1.5,
+        ),
       ),
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
       child: Column(
@@ -89,6 +94,7 @@ class _TodoInputFieldState extends State<TodoInputField> {
                   decoration: const InputDecoration(
                     border: InputBorder.none,
                     hintText: AppStrings.inputHint,
+                    hintStyle: TextStyle(color: Color(0xFFB3B3B3)),
                   ),
                 ),
               ),
@@ -118,7 +124,7 @@ class _TodoInputFieldState extends State<TodoInputField> {
                 child: Text(
                   AppStrings.categoryLabel,
                   style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                        color: const Color(0xFF425466),
+                        color: const Color(0xFFB3B3B3),
                         fontWeight: FontWeight.w600,
                       ),
                 ),
@@ -137,11 +143,25 @@ class _TodoInputFieldState extends State<TodoInputField> {
             children: widget.categories.map((String category) {
               final bool selected = widget.selectedCategory == category;
               return InputChip(
-                label: Text(CategoryCopy.label(category)),
+                label: Text(
+                  CategoryCopy.label(category),
+                  style: TextStyle(
+                    color: selected ? const Color(0xFF0A0A0A) : const Color(0xFFB3B3B3),
+                  ),
+                ),
                 selected: selected,
+                showCheckmark: false,
+                selectedColor: const Color(0xFF00F2FF),
+                backgroundColor: Colors.transparent,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  side: BorderSide(
+                    color: selected ? Colors.transparent : const Color(0xFF2E2E2E), // Subtly dark grey outline
+                  ),
+                ),
                 onSelected: (_) => widget.onCategoryChanged(category),
                 onDeleted: () => widget.onDeleteCategory(category),
-                deleteIcon: const Icon(Icons.close_rounded, size: 18),
+                deleteIcon: Icon(Icons.close_rounded, size: 18, color: selected ? const Color(0xFF0A0A0A) : const Color(0xFFB3B3B3)),
                 deleteButtonTooltipMessage: AppStrings.deleteCategoryTooltip,
               );
             }).toList(),

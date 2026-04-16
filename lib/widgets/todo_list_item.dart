@@ -35,22 +35,15 @@ class TodoListItem extends StatelessWidget {
         duration: const Duration(milliseconds: AppConstants.baseAnimationMs),
         curve: Curves.easeOutCubic,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          color: item.isCompleted ? const Color(0xFFE9F8EC) : Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          color: const Color(0xFF161616),
           border: Border.all(color: borderColor),
-          boxShadow: <BoxShadow>[
-            BoxShadow(
-              color: Colors.black.withOpacity(0.04),
-              blurRadius: 16,
-              offset: const Offset(0, 4),
-            ),
-          ],
         ),
         child: Material(
           color: Colors.transparent,
           child: InkWell(
             onTap: onTap,
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(16),
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               child: Row(
@@ -71,13 +64,13 @@ class TodoListItem extends StatelessWidget {
                             ? const Icon(
                                 Icons.check_circle_rounded,
                                 key: ValueKey<String>('done'),
-                                color: Color(0xFF2E7D32),
+                                color: Color(0xFF00F2FF),
                                 size: 28,
                               )
                             : const Icon(
                                 Icons.radio_button_unchecked_rounded,
                                 key: ValueKey<String>('open'),
-                                color: Color(0xFF0F4C5C),
+                                color: Color(0xFF5E5E5E),
                                 size: 28,
                               ),
                       ),
@@ -99,8 +92,10 @@ class TodoListItem extends StatelessWidget {
                                 decoration:
                                     item.isCompleted ? TextDecoration.lineThrough : null,
                                 color: item.isCompleted
-                                    ? const Color(0xFF607D68)
-                                    : const Color(0xFF1D2939),
+                                    ? const Color(0xFF757575)
+                                    : const Color(0xFFFFFFFF),
+                                fontWeight: FontWeight.w600,
+                                fontSize: 16,
                                 height: 1.35,
                               ),
                         ),
@@ -108,7 +103,7 @@ class TodoListItem extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
-                            color: const Color(0x140F4C5C),
+                            color: const Color(0xFF2E2E2E), // Solid dark grey to anchor tag
                             borderRadius: BorderRadius.circular(999),
                           ),
                           child: Text(
@@ -117,8 +112,9 @@ class TodoListItem extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                             softWrap: false,
                             style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                                  color: const Color(0xFF0F4C5C),
-                                  fontWeight: FontWeight.w700,
+                                  color: const Color(0xFF00F2FF), // Neon teal text overrides
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: 0.5,
                                 ),
                           ),
                         ),
@@ -136,19 +132,19 @@ class TodoListItem extends StatelessWidget {
                         tooltip: 'Generate Sub-tasks with AI',
                         onPressed: isBusy ? null : onGenerateAI,
                         icon: isBusy
-                            ? const Icon(Icons.auto_awesome, color: Colors.deepPurpleAccent)
+                            ? const Icon(Icons.auto_awesome, color: Color(0xFF00F2FF))
                                 .animate(onPlay: (controller) => controller.repeat())
-                                .shimmer(duration: 1000.ms, color: Colors.purpleAccent)
+                                .shimmer(duration: 1000.ms, color: Colors.white)
                                 .scaleXY(end: 1.1, duration: 500.ms, curve: Curves.easeInOutSine)
                                 .then()
                                 .scaleXY(end: 1 / 1.1, duration: 500.ms, curve: Curves.easeInOutSine)
-                            : const Icon(Icons.auto_awesome, color: Colors.deepPurpleAccent),
+                            : const Icon(Icons.auto_awesome, color: Color(0xFF00F2FF)),
                       ),
                       IconButton(
                         key: const ValueKey<String>('item_delete'),
                         tooltip: AppStrings.deleteTooltip,
                         onPressed: isBusy ? null : onDelete,
-                        icon: const Icon(Icons.delete_outline_rounded, color: Colors.black54),
+                        icon: const Icon(Icons.delete_outline_rounded, color: Color(0xFF5E5E5E)), // Dimmer so it doesn't distract
                       ),
                     ],
                   ),

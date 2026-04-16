@@ -28,7 +28,7 @@ class TodoListView extends StatelessWidget {
     return ListView.separated(
       physics: const BouncingScrollPhysics(),
       itemCount: items.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 10),
+      separatorBuilder: (_, __) => const SizedBox(height: 16),
       itemBuilder: (BuildContext context, int index) {
         final Task item = items[index];
         final int delay = (index * AppConstants.itemEntranceAnimationStepMs)
