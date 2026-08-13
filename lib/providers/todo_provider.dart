@@ -339,7 +339,9 @@ class TodoProvider extends ChangeNotifier {
     try {
       await _taskService.deleteTask(id);
       _items.removeWhere((Task item) => item.id == id);
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('Error deleting todo: $e');
+    }
 
     _busyItemIds.remove(id);
     notifyListeners();
@@ -436,7 +438,8 @@ class TodoProvider extends ChangeNotifier {
       _items[index] = _items[index].copyWith(subTasks: updatedSubTasks);
       notifyListeners();
       return true;
-    } catch (_) {
+    } catch (e) {
+      debugPrint('Error deleting subtask: $e');
       return false;
     }
   }

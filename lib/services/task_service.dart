@@ -60,6 +60,10 @@ class TaskService {
 
   /// Delete a task via its ID
   Future<void> deleteTask(String id) async {
+    // Delete any AI usage logs referencing this task first
+    await _client.from('ai_usage_logs').delete().eq('task_id', id);
+    // Delete any subtasks first to avoid foreign key constraint violations
+    await _client.from('tasks').delete().eq('parent_id', id);
     await _client.from('tasks').delete().eq('id', id);
   }
 
