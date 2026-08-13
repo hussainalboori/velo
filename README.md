@@ -145,9 +145,24 @@ flutter pub get
 
 ### 4. Supabase Setup
 
-To support all app features, ensure your Supabase project contains the following tables and RPC functions:
+#### Applying the Schema to a New Supabase Project
 
-#### Live Database Schema (`public`)
+You can apply the full database schema (tables, foreign keys, RLS policies, auto-user trigger, and RPC functions) using either method below:
+
+**Option A: Supabase Dashboard (SQL Editor)**
+1. Copy the contents of [`supabase/schema.sql`](file:///Users/abojass/Documents/GitHub/to_do_flutter/supabase/schema.sql).
+2. Open your Supabase Project Dashboard -> **SQL Editor**.
+3. Paste the contents into a new query and click **Run**.
+
+**Option B: Supabase CLI**
+```bash
+# Push migrations directly to your linked remote Supabase project
+npx supabase db push
+```
+
+---
+
+#### Database Schema Details (`public`)
 
 ##### 1. `profiles`
 User entitlement and token tracking table:
