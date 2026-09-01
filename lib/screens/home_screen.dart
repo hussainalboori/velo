@@ -22,6 +22,10 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  /// Returns the empty-state text for each filter mode.
+  ///
+  /// The UI intentionally changes its message depending on whether the user is viewing all, active, or
+  /// completed tasks; this keeps the experience informative rather than static.
   ({String title, String message}) _emptyCopyForFilter(TodoFilter filter) {
     switch (filter) {
       case TodoFilter.active:
@@ -77,6 +81,10 @@ class _HomeScreenState extends State<HomeScreen> {
     return didAdd;
   }
 
+  /// Creates a modal dialog for category creation and normalizes the value before passing it upstream.
+  ///
+  /// Validation is intentionally repeated here because the UI should provide immediate feedback before the
+  /// provider mutates app state. This reduces accidental duplicate or empty categories.
   Future<void> _showAddCategoryDialog() async {
     String draftCategory = '';
 

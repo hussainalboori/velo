@@ -5,6 +5,9 @@ import 'package:to_do_flutter/core/constants/app_constants.dart';
 class SmartBannerAd extends StatefulWidget {
   const SmartBannerAd({super.key});
 
+  /// Shows a banner ad only when ads are enabled and the user is not in Pro mode.
+  ///
+  /// This keeps the free-tier monetization unobtrusive while still supporting the app's economics.
   @override
   State<SmartBannerAd> createState() => _SmartBannerAdState();
 }

@@ -11,11 +11,15 @@ import 'package:to_do_flutter/providers/todo_provider.dart';
 import 'package:to_do_flutter/screens/auth_gate.dart';
 
 Future<void> main() async {
+  // Flutter must be initialized before any platform services such as ads, auth, or in-app purchases.
   WidgetsFlutterBinding.ensureInitialized();
+
+  // The app is able to hide ads entirely via AppConstants.showAds, which keeps local testing and QA simple.
   if (AppConstants.showAds) {
     await MobileAds.instance.initialize();
   }
 
+  // Runtime values are passed to the app using dart-define so secrets are never bundled into source files.
   const String supabaseUrl = String.fromEnvironment('SUPABASE_URL', defaultValue: '');
   const String supabaseAnonKey = String.fromEnvironment('SUPABASE_ANON_KEY', defaultValue: '');
 
@@ -24,11 +28,14 @@ Future<void> main() async {
     anonKey: supabaseAnonKey,
   );
 
+  // RevenueCat is configured only on Android in this project. iOS configuration is expected to be added
+  // when the app is expanded to the Apple App Store and the corresponding API key is supplied.
   if (Platform.isAndroid) {
     const String revenueCatKey = String.fromEnvironment('REVENUECAT_GOOGLE_KEY', defaultValue: '');
     await Purchases.configure(PurchasesConfiguration(revenueCatKey));
   }
 
+  // Restore the current Supabase auth user into RevenueCat so entitlement checks and purchases stay aligned.
   final user = Supabase.instance.client.auth.currentUser;
   if (user != null) {
     await Purchases.logIn(user.id);

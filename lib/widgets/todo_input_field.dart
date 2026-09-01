@@ -38,6 +38,10 @@ class _TodoInputFieldState extends State<TodoInputField> {
     });
   }
 
+  /// Submits the current text value and clears the input only when the provider reports success.
+  ///
+  /// This protects the user from losing typed text on a failed create request and avoids duplicate task adds
+  /// caused by duplicate taps or transient backend errors.
   Future<void> _submit() async {
     final String value = _controller.text;
     final bool didAdd = await widget.onSubmit(value, widget.selectedCategory);

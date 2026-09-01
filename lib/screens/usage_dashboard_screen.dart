@@ -16,6 +16,10 @@ class UsageDashboardScreen extends StatefulWidget {
 class _UsageDashboardScreenState extends State<UsageDashboardScreen> {
   bool _isLoading = true;
 
+  // The dashboard is intentionally gated: free users see their current session usage while pro users see
+  // the deeper charts and analytics. This mirrors the app's monetization strategy and avoids leaking value
+  // metrics to users who have not upgraded.
+
   @override
   void initState() {
     super.initState();

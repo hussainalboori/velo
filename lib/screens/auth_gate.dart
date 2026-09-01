@@ -6,6 +6,9 @@ import 'package:to_do_flutter/screens/home_screen.dart';
 class AuthGate extends StatelessWidget {
   const AuthGate({super.key});
 
+  /// Routes the user to the authenticated experience or the sign-in screen based on Supabase auth state.
+  ///
+  /// Using a stream keeps the app responsive to auth changes without manually reloading the whole app.
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<AuthState>(

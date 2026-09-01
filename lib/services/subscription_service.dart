@@ -4,7 +4,10 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 class SubscriptionService {
   final SupabaseClient _supabaseClient = Supabase.instance.client;
 
-  /// Log into RevenueCat with the current Supabase user's UID
+  /// Links the current Supabase user to RevenueCat for purchase and entitlement tracking.
+  ///
+  /// This is necessary because RevenueCat entitlements are keyed to a user identifier, not the Supabase
+  /// session alone. Without this step, the app can show a free tier even after a purchase succeeds.
   Future<void> login() async {
     final user = _supabaseClient.auth.currentUser;
     if (user != null) {

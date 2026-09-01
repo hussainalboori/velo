@@ -24,6 +24,8 @@ class TodoListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // A completed item is visually distinguished with a subtle green border so users can scan their queue
+    // quickly without losing the original dark theme language.
     final Color borderColor =
         item.isCompleted ? const Color(0x7A4CAF50) : Colors.transparent;
 

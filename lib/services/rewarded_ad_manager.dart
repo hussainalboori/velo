@@ -7,7 +7,8 @@ class RewardedAdManager {
   bool _isAdLoaded = false;
   bool _isShowing = false;
 
-  // Ad Unit ID pulled dynamically based on OS platform via EnvConfig
+  // Ad Unit ID pulled dynamically based on OS platform via EnvConfig.
+  // The default is a test ID so development builds can run without real AdMob setup.
   final String adUnitId = EnvConfig.adMobRewardedId;
 
   void loadAd() {

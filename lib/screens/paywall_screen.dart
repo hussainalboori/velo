@@ -23,6 +23,10 @@ class _PaywallScreenState extends State<PaywallScreen> {
   bool _isAdShowing = false;
   final RewardedAdManager _adManager = RewardedAdManager();
 
+  // The paywall is multi-purpose: it sells Pro, surfaces the ad reward path, and provides a fallback for
+  // users who have exhausted their free AI tokens. The same bottom sheet is reused across HomeScreen and
+  // the analytics screen to keep conversion paths consistent.
+
   @override
   void initState() {
     super.initState();

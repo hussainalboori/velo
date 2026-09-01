@@ -25,6 +25,8 @@ class TodoListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // The staggered fade/slide animation helps the list feel alive without becoming distracting or causing
+    // layout jank when items are inserted or filtered. Each item delay is based on its index.
     return ListView.separated(
       physics: const BouncingScrollPhysics(),
       itemCount: items.length,
