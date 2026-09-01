@@ -1,6 +1,5 @@
 /// Role: Centralizes app-wide constants, keys, and all user-facing copy.
 import 'dart:io';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class AppConstants {
   static const String todosStorageKey = 'todos_storage_key_v1';
@@ -11,6 +10,7 @@ class AppConstants {
     'study',
   ];
 
+  static const bool showAds = false;
   static const int maxTodoLength = 240;
   static const int maxCategoryLength = 28;
   static const int maxDescriptionLength = 600;
@@ -22,11 +22,31 @@ class AppConstants {
 
 class EnvConfig {
   static String get adMobRewardedId {
-    return dotenv.env[Platform.isAndroid ? 'ADMOB_REWARDED_ANDROID' : 'ADMOB_REWARDED_IOS'] ?? '';
+    if (Platform.isAndroid) {
+      return const String.fromEnvironment(
+        'ADMOB_REWARDED_ANDROID',
+        defaultValue: 'ca-app-pub-3940256099942544/5224354917',
+      );
+    }
+
+    return const String.fromEnvironment(
+      'ADMOB_REWARDED_IOS',
+      defaultValue: 'ca-app-pub-3940256099942544/1712409013',
+    );
   }
 
   static String get adMobBannerId {
-    return dotenv.env[Platform.isAndroid ? 'ADMOB_BANNER_ANDROID' : 'ADMOB_BANNER_IOS'] ?? '';
+    if (Platform.isAndroid) {
+      return const String.fromEnvironment(
+        'ADMOB_BANNER_ANDROID',
+        defaultValue: 'ca-app-pub-3940256099942544/6300978111',
+      );
+    }
+
+    return const String.fromEnvironment(
+      'ADMOB_BANNER_IOS',
+      defaultValue: 'ca-app-pub-3940256099942544/2934735716',
+    );
   }
 }
 

@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:to_do_flutter/core/constants/app_constants.dart';
 import 'package:to_do_flutter/providers/todo_provider.dart';
 import 'package:to_do_flutter/services/rewarded_ad_manager.dart';
 
@@ -211,11 +212,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
             const SizedBox(height: 16),
             Consumer<TodoProvider>(
               builder: (context, provider, child) {
-                if (provider.isPro) {
-                  return const SizedBox.shrink();
-                }
-
-                if (provider.adsWatchedToday >= 3) {
+                if (!AppConstants.showAds || provider.isPro || provider.adsWatchedToday >= 3) {
                   return const SizedBox.shrink();
                 }
 

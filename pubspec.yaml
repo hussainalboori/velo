@@ -18,7 +18,6 @@ dependencies:
   fl_chart: ^0.69.0
   google_mobile_ads: ^5.1.0
   flutter_animate: ^4.5.0
-  flutter_dotenv: ^6.0.0
 
 dev_dependencies:
   flutter_test:
@@ -46,4 +45,3 @@ flutter:
   uses-material-design: true
   assets:
     - assets/
-    - .env

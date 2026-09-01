@@ -23,6 +23,7 @@ class _SmartBannerAdState extends State<SmartBannerAd> {
   }
 
   void _loadAd() {
+    if (!AppConstants.showAds) return;
     _bannerAd = BannerAd(
       adUnitId: adUnitId,
       request: const AdRequest(),
@@ -52,6 +53,10 @@ class _SmartBannerAdState extends State<SmartBannerAd> {
 
   @override
   Widget build(BuildContext context) {
+    if (!AppConstants.showAds) {
+      return const SizedBox.shrink();
+    }
+
     if (_isLoaded && _bannerAd != null) {
       return Container(
         padding: const EdgeInsets.only(top: 8),

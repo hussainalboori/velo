@@ -50,9 +50,34 @@ serve(async (req) => {
       })
     }
 
-    // Call OpenAI
     const { taskId, taskTitle } = await req.json()
+
+    if (!taskId || typeof taskTitle !== 'string') {
+      throw new Error('Missing taskId or taskTitle')
+    }
+
+    const cleanTaskTitle = taskTitle.trim().slice(0, 500)
+    if (cleanTaskTitle.length < 3) {
+      throw new Error('Task title is too short')
+    }
+
+    const { data: parentTask, error: parentTaskError } = await supabaseClient
+      .from('tasks')
+      .select('id, user_id')
+      .eq('id', taskId)
+      .single()
+
+    if (parentTaskError || !parentTask || parentTask.user_id !== user.id) {
+      return new Response(JSON.stringify({ error: 'Forbidden: invalid parent task' }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 403,
+      })
+    }
+
     const openAiKey = Deno.env.get('OPENAI_API_KEY')
+    if (!openAiKey) {
+      throw new Error('OPENAI_API_KEY is not configured')
+    }
 
     const aiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -65,20 +90,34 @@ serve(async (req) => {
         response_format: { type: "json_object" },
         messages: [
           { role: "system", content: "You are a productivity expert. Break the user's task down into 3 to 5 logical, immediately actionable sub-tasks. Return ONLY a JSON object: { \"subtasks\": [\"Step 1\", \"Step 2\"] }" },
-          { role: "user", content: `Break down this task: ${taskTitle}` }
+          { role: "user", content: `Break down this task: ${cleanTaskTitle}` }
         ]
       })
     })
 
     const aiData = await aiResponse.json()
-    const subtaskList = JSON.parse(aiData.choices[0].message.content).subtasks
+    if (!aiResponse.ok || !aiData.choices?.[0]?.message?.content) {
+      throw new Error('Failed to generate subtasks from OpenAI')
+    }
+
+    const parsed = JSON.parse(aiData.choices[0].message.content)
+    const subtaskList = Array.isArray(parsed.subtasks)
+      ? parsed.subtasks
+          .map((title: unknown) => typeof title === 'string' ? title.trim().slice(0, 120) : '')
+          .filter((title: string) => title.length >= 3)
+          .slice(0, 5)
+      : []
+
+    if (subtaskList.length === 0) {
+      throw new Error('No valid subtasks were generated')
+    }
 
     const insertData = subtaskList.map((title: string) => ({
-      title: title,
+      title,
       parent_id: taskId,
+      user_id: user.id,
     }))
 
-    // Insert the tasks using the standard User Client
     const { error: insertError } = await supabaseClient.from('tasks').insert(insertData)
     if (insertError) throw insertError
 

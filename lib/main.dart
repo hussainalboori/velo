@@ -6,33 +6,34 @@ import 'package:provider/provider.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:to_do_flutter/core/constants/app_constants.dart';
 import 'package:to_do_flutter/providers/todo_provider.dart';
 import 'package:to_do_flutter/screens/auth_gate.dart';
 
-
-
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await MobileAds.instance.initialize();
+  if (AppConstants.showAds) {
+    await MobileAds.instance.initialize();
+  }
 
-  await dotenv.load(fileName: ".env");
+  const String supabaseUrl = String.fromEnvironment('SUPABASE_URL', defaultValue: '');
+  const String supabaseAnonKey = String.fromEnvironment('SUPABASE_ANON_KEY', defaultValue: '');
 
   await Supabase.initialize(
-    url: dotenv.env['SUPABASE_URL'] ?? '',
-    anonKey: dotenv.env['SUPABASE_ANON_KEY'] ?? '',
+    url: supabaseUrl,
+    anonKey: supabaseAnonKey,
   );
 
-// Use appropriate RevenueCat API key depending on the platform (iOS or Android)
-if (Platform.isAndroid) {
-  await Purchases.configure(PurchasesConfiguration(dotenv.env['REVENUECAT_GOOGLE_KEY'] ?? ''));
-}
+  if (Platform.isAndroid) {
+    const String revenueCatKey = String.fromEnvironment('REVENUECAT_GOOGLE_KEY', defaultValue: '');
+    await Purchases.configure(PurchasesConfiguration(revenueCatKey));
+  }
 
-final user = Supabase.instance.client.auth.currentUser;
-if (user != null) {
-  await Purchases.logIn(user.id);
-}
+  final user = Supabase.instance.client.auth.currentUser;
+  if (user != null) {
+    await Purchases.logIn(user.id);
+  }
+
   runApp(const TodoPortfolioApp());
 }
 
