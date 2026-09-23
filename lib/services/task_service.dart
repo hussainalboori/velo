@@ -2,7 +2,11 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:to_do_flutter/models/task.dart';
 
 class TaskService {
-  final SupabaseClient _client = Supabase.instance.client;
+  final SupabaseClient? _clientOverride;
+
+  TaskService({SupabaseClient? client}) : _clientOverride = client;
+
+  SupabaseClient get _client => _clientOverride ?? Supabase.instance.client;
 
   /// Returns only top-level todos for the current user.
   ///
@@ -35,7 +39,8 @@ class TaskService {
 
   /// Add a new task
   Future<Task> addTask(Task task) async {
-    final response = await _client.from('tasks').insert(task.toJson()).select().single();
+    final response =
+        await _client.from('tasks').insert(task.toJson()).select().single();
     return Task.fromJson(response);
   }
 
@@ -48,6 +53,12 @@ class TaskService {
         .select()
         .single();
     return Task.fromJson(response);
+  }
+
+  /// Bulk update a list of tasks concurrently
+  Future<void> updateTasks(List<Task> tasks) async {
+    if (tasks.isEmpty) return;
+    await Future.wait(tasks.map((task) => updateTask(task)));
   }
 
   /// Update task completion status
