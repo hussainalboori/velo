@@ -1,7 +1,20 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 
-async function isValidSignature(body: string, signature: string, secret: string): Promise<boolean> {
+export function timingSafeEqual(a: Uint8Array, b: Uint8Array): boolean {
+  if (a.length !== b.length) {
+    return false
+  }
+
+  let mismatch = 0
+  for (let i = 0; i < a.length; i++) {
+    mismatch |= a[i] ^ b[i]
+  }
+
+  return mismatch === 0
+}
+
+export async function isValidSignature(body: string, signature: string, secret: string): Promise<boolean> {
   if (!signature || !secret) return false
 
   const encoder = new TextEncoder()
@@ -18,7 +31,10 @@ async function isValidSignature(body: string, signature: string, secret: string)
     .map((value) => value.toString(16).padStart(2, '0'))
     .join('')
 
-  return signature.toLowerCase() === signatureHex.toLowerCase()
+  const a = encoder.encode(signature.toLowerCase())
+  const b = encoder.encode(signatureHex.toLowerCase())
+
+  return timingSafeEqual(a, b)
 }
 
 serve(async (req) => {
