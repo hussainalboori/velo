@@ -82,7 +82,7 @@ class _AuthScreenState extends State<AuthScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Scaffold(
       backgroundColor: const Color(0xFF0A0A0A),
       body: SafeArea(
@@ -128,12 +128,20 @@ class _AuthScreenState extends State<AuthScreen> {
                     decoration: InputDecoration(
                       labelText: 'Email',
                       labelStyle: const TextStyle(color: Color(0xFFB3B3B3)),
-                      prefixIcon: const Icon(Icons.email_outlined, color: Color(0xFFB3B3B3)),
+                      prefixIcon: const Icon(Icons.email_outlined,
+                          color: Color(0xFFB3B3B3)),
                       filled: true,
                       fillColor: const Color(0xFF161616),
-                      border: OutlineInputBorder(borderSide: BorderSide.none, borderRadius: BorderRadius.circular(14)),
-                      enabledBorder: OutlineInputBorder(borderSide: BorderSide.none, borderRadius: BorderRadius.circular(14)),
-                      focusedBorder: OutlineInputBorder(borderSide: const BorderSide(color: Color(0xFF00F2FF), width: 1.5), borderRadius: BorderRadius.circular(14)),
+                      border: OutlineInputBorder(
+                          borderSide: BorderSide.none,
+                          borderRadius: BorderRadius.circular(14)),
+                      enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide.none,
+                          borderRadius: BorderRadius.circular(14)),
+                      focusedBorder: OutlineInputBorder(
+                          borderSide: const BorderSide(
+                              color: Color(0xFF00F2FF), width: 1.5),
+                          borderRadius: BorderRadius.circular(14)),
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -157,12 +165,20 @@ class _AuthScreenState extends State<AuthScreen> {
                     decoration: InputDecoration(
                       labelText: 'Password',
                       labelStyle: const TextStyle(color: Color(0xFFB3B3B3)),
-                      prefixIcon: const Icon(Icons.lock_outline, color: Color(0xFFB3B3B3)),
+                      prefixIcon: const Icon(Icons.lock_outline,
+                          color: Color(0xFFB3B3B3)),
                       filled: true,
                       fillColor: const Color(0xFF161616),
-                      border: OutlineInputBorder(borderSide: BorderSide.none, borderRadius: BorderRadius.circular(14)),
-                      enabledBorder: OutlineInputBorder(borderSide: BorderSide.none, borderRadius: BorderRadius.circular(14)),
-                      focusedBorder: OutlineInputBorder(borderSide: const BorderSide(color: Color(0xFF00F2FF), width: 1.5), borderRadius: BorderRadius.circular(14)),
+                      border: OutlineInputBorder(
+                          borderSide: BorderSide.none,
+                          borderRadius: BorderRadius.circular(14)),
+                      enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide.none,
+                          borderRadius: BorderRadius.circular(14)),
+                      focusedBorder: OutlineInputBorder(
+                          borderSide: const BorderSide(
+                              color: Color(0xFF00F2FF), width: 1.5),
+                          borderRadius: BorderRadius.circular(14)),
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -186,12 +202,20 @@ class _AuthScreenState extends State<AuthScreen> {
                       decoration: InputDecoration(
                         labelText: 'Confirm Password',
                         labelStyle: const TextStyle(color: Color(0xFFB3B3B3)),
-                        prefixIcon: const Icon(Icons.lock_outline, color: Color(0xFFB3B3B3)),
+                        prefixIcon: const Icon(Icons.lock_outline,
+                            color: Color(0xFFB3B3B3)),
                         filled: true,
                         fillColor: const Color(0xFF161616),
-                        border: OutlineInputBorder(borderSide: BorderSide.none, borderRadius: BorderRadius.circular(14)),
-                        enabledBorder: OutlineInputBorder(borderSide: BorderSide.none, borderRadius: BorderRadius.circular(14)),
-                        focusedBorder: OutlineInputBorder(borderSide: const BorderSide(color: Color(0xFF00F2FF), width: 1.5), borderRadius: BorderRadius.circular(14)),
+                        border: OutlineInputBorder(
+                            borderSide: BorderSide.none,
+                            borderRadius: BorderRadius.circular(14)),
+                        enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide.none,
+                            borderRadius: BorderRadius.circular(14)),
+                        focusedBorder: OutlineInputBorder(
+                            borderSide: const BorderSide(
+                                color: Color(0xFF00F2FF), width: 1.5),
+                            borderRadius: BorderRadius.circular(14)),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -212,7 +236,8 @@ class _AuthScreenState extends State<AuthScreen> {
                       foregroundColor: const Color(0xFF000000),
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       elevation: 4,
-                      textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      textStyle: const TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 16),
                     ),
                     child: _isLoading
                         ? const SizedBox(
@@ -237,7 +262,10 @@ class _AuthScreenState extends State<AuthScreen> {
                           : 'Don\'t have an account? Sign Up',
                     ),
                   ),
-                ].animate(interval: 100.ms).fade(duration: 400.ms).slideY(begin: 0.2, end: 0),
+                ]
+                    .animate(interval: 100.ms)
+                    .fade(duration: 400.ms)
+                    .slideY(begin: 0.2, end: 0),
               ),
             ),
           ),

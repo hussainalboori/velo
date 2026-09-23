@@ -20,8 +20,10 @@ Future<void> main() async {
   }
 
   // Runtime values are passed to the app using dart-define so secrets are never bundled into source files.
-  const String supabaseUrl = String.fromEnvironment('SUPABASE_URL', defaultValue: '');
-  const String supabaseAnonKey = String.fromEnvironment('SUPABASE_ANON_KEY', defaultValue: '');
+  const String supabaseUrl =
+      String.fromEnvironment('SUPABASE_URL', defaultValue: '');
+  const String supabaseAnonKey =
+      String.fromEnvironment('SUPABASE_ANON_KEY', defaultValue: '');
 
   await Supabase.initialize(
     url: supabaseUrl,
@@ -31,7 +33,8 @@ Future<void> main() async {
   // RevenueCat is configured only on Android in this project. iOS configuration is expected to be added
   // when the app is expanded to the Apple App Store and the corresponding API key is supplied.
   if (Platform.isAndroid) {
-    const String revenueCatKey = String.fromEnvironment('REVENUECAT_GOOGLE_KEY', defaultValue: '');
+    const String revenueCatKey =
+        String.fromEnvironment('REVENUECAT_GOOGLE_KEY', defaultValue: '');
     await Purchases.configure(PurchasesConfiguration(revenueCatKey));
   }
 

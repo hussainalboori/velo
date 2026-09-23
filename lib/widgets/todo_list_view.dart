@@ -44,7 +44,8 @@ class TodoListView extends StatelessWidget {
           onDelete: () => onDelete(item.id!),
           onGenerateAI: () => onGenerateAI(item.id!),
           onTap: () => onTapTask(item),
-        ).animate().fade(duration: 400.ms, delay: delay.ms).slideY(begin: 0.15, end: 0, duration: 400.ms, curve: Curves.easeOutCubic);
+        ).animate().fade(duration: 400.ms, delay: delay.ms).slideY(
+            begin: 0.15, end: 0, duration: 400.ms, curve: Curves.easeOutCubic);
       },
     );
   }

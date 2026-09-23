@@ -70,7 +70,9 @@ class _TodoInputFieldState extends State<TodoInputField> {
         color: const Color(0xFF161616),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: _focusNode.hasFocus ? const Color(0xFF00F2FF) : Colors.transparent,
+          color: _focusNode.hasFocus
+              ? const Color(0xFF00F2FF)
+              : Colors.transparent,
           width: 1.5,
         ),
       ),
@@ -150,7 +152,9 @@ class _TodoInputFieldState extends State<TodoInputField> {
                 label: Text(
                   CategoryCopy.label(category),
                   style: TextStyle(
-                    color: selected ? const Color(0xFF0A0A0A) : const Color(0xFFB3B3B3),
+                    color: selected
+                        ? const Color(0xFF0A0A0A)
+                        : const Color(0xFFB3B3B3),
                   ),
                 ),
                 selected: selected,
@@ -160,12 +164,18 @@ class _TodoInputFieldState extends State<TodoInputField> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                   side: BorderSide(
-                    color: selected ? Colors.transparent : const Color(0xFF2E2E2E), // Subtly dark grey outline
+                    color: selected
+                        ? Colors.transparent
+                        : const Color(0xFF2E2E2E), // Subtly dark grey outline
                   ),
                 ),
                 onSelected: (_) => widget.onCategoryChanged(category),
                 onDeleted: () => widget.onDeleteCategory(category),
-                deleteIcon: Icon(Icons.close_rounded, size: 18, color: selected ? const Color(0xFF0A0A0A) : const Color(0xFFB3B3B3)),
+                deleteIcon: Icon(Icons.close_rounded,
+                    size: 18,
+                    color: selected
+                        ? const Color(0xFF0A0A0A)
+                        : const Color(0xFFB3B3B3)),
                 deleteButtonTooltipMessage: AppStrings.deleteCategoryTooltip,
               );
             }).toList(),

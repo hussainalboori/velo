@@ -35,7 +35,8 @@ class TaskService {
 
   /// Add a new task
   Future<Task> addTask(Task task) async {
-    final response = await _client.from('tasks').insert(task.toJson()).select().single();
+    final response =
+        await _client.from('tasks').insert(task.toJson()).select().single();
     return Task.fromJson(response);
   }
 

@@ -40,10 +40,14 @@ class Task {
       userId: json['user_id'] as String?,
       title: json['title'] as String,
       isCompleted: json['is_completed'] as bool? ?? false,
-      dueDate: json['due_date'] != null ? DateTime.parse(json['due_date'] as String) : null,
+      dueDate: json['due_date'] != null
+          ? DateTime.parse(json['due_date'] as String)
+          : null,
       priorityLevel: json['priority_level'] as int? ?? 1,
       parentId: json['parent_id'] as String?,
-      createdAt: json['created_at'] != null ? DateTime.parse(json['created_at'] as String) : null,
+      createdAt: json['created_at'] != null
+          ? DateTime.parse(json['created_at'] as String)
+          : null,
       category: json['category'] as String? ?? 'personal',
       description: json['description'] as String? ?? '',
       subTasks: json['subTasks'] != null

@@ -194,8 +194,13 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
     if (task == null) {
       return Scaffold(
         backgroundColor: const Color(0xFF0A0A0A),
-        appBar: AppBar(title: const Text(AppStrings.taskDetailsTitle), backgroundColor: const Color(0xFF0A0A0A), foregroundColor: Colors.white),
-        body: const Center(child: Text(AppStrings.emptyTitle, style: TextStyle(color: Colors.white))),
+        appBar: AppBar(
+            title: const Text(AppStrings.taskDetailsTitle),
+            backgroundColor: const Color(0xFF0A0A0A),
+            foregroundColor: Colors.white),
+        body: const Center(
+            child: Text(AppStrings.emptyTitle,
+                style: TextStyle(color: Colors.white))),
       );
     }
 
@@ -233,7 +238,8 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
               _isEditing
                   ? AppStrings.taskSaveTopButton
                   : AppStrings.taskEditButton,
-              style: const TextStyle(color: Color(0xFF00F2FF), fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                  color: Color(0xFF00F2FF), fontWeight: FontWeight.bold),
             ),
           ),
         ],
@@ -325,7 +331,8 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                   maxLines: 4,
                   maxLength: AppConstants.maxDescriptionLength,
                   style: const TextStyle(color: Colors.white),
-                  decoration: _buildInputDecoration(AppStrings.taskDescriptionHint),
+                  decoration:
+                      _buildInputDecoration(AppStrings.taskDescriptionHint),
                 )
               else
                 Text(
@@ -333,8 +340,10 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                       ? AppStrings.taskDescriptionHint
                       : task.description,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: task.description.isEmpty ? const Color(0xFFB3B3B3) : const Color(0xFFE0E0E0),
-                  ),
+                        color: task.description.isEmpty
+                            ? const Color(0xFFB3B3B3)
+                            : const Color(0xFFE0E0E0),
+                      ),
                 ),
               const SizedBox(height: 32),
               Text(
@@ -359,8 +368,10 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                     style: FilledButton.styleFrom(
                       backgroundColor: const Color(0xFF00F2FF),
                       foregroundColor: const Color(0xFF0A0A0A),
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                      textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 16),
+                      textStyle: const TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 16),
                     ),
                     child: const Text('Add'),
                   ),
@@ -371,18 +382,29 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: IconButton(
-                      onPressed: _isGeneratingAI ? null : () => _generateSubtasksWithAI(task),
+                      onPressed: _isGeneratingAI
+                          ? null
+                          : () => _generateSubtasksWithAI(task),
                       tooltip: 'Auto-Generate Subtasks',
                       padding: const EdgeInsets.all(12),
                       iconSize: 26,
                       icon: _isGeneratingAI
-                          ? const Icon(Icons.auto_awesome, color: Color(0xFF00F2FF))
-                              .animate(onPlay: (controller) => controller.repeat())
+                          ? const Icon(Icons.auto_awesome,
+                                  color: Color(0xFF00F2FF))
+                              .animate(
+                                  onPlay: (controller) => controller.repeat())
                               .shimmer(duration: 1000.ms, color: Colors.white)
-                              .scaleXY(end: 1.1, duration: 500.ms, curve: Curves.easeInOutSine)
+                              .scaleXY(
+                                  end: 1.1,
+                                  duration: 500.ms,
+                                  curve: Curves.easeInOutSine)
                               .then()
-                              .scaleXY(end: 1 / 1.1, duration: 500.ms, curve: Curves.easeInOutSine)
-                          : const Icon(Icons.auto_awesome, color: Color(0xFF00F2FF)),
+                              .scaleXY(
+                                  end: 1 / 1.1,
+                                  duration: 500.ms,
+                                  curve: Curves.easeInOutSine)
+                          : const Icon(Icons.auto_awesome,
+                              color: Color(0xFF00F2FF)),
                     ),
                   ),
                 ],
@@ -421,8 +443,12 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
-                              color: subTask.isCompleted ? const Color(0xFFB3B3B3) : Colors.white,
-                              decoration: subTask.isCompleted ? TextDecoration.lineThrough : null,
+                              color: subTask.isCompleted
+                                  ? const Color(0xFFB3B3B3)
+                                  : Colors.white,
+                              decoration: subTask.isCompleted
+                                  ? TextDecoration.lineThrough
+                                  : null,
                             ),
                           ),
                           secondary: IconButton(
@@ -432,7 +458,8 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                                 subTaskId: subTask.id!,
                               );
                             },
-                            icon: const Icon(Icons.delete_outline_rounded, color: Color(0xFFB3B3B3)),
+                            icon: const Icon(Icons.delete_outline_rounded,
+                                color: Color(0xFFB3B3B3)),
                           ),
                           controlAffinity: ListTileControlAffinity.leading,
                         ),

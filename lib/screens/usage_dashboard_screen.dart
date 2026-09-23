@@ -69,7 +69,7 @@ class _UsageDashboardScreenState extends State<UsageDashboardScreen> {
                         _buildFreeSessionCard(provider.tokensUsed),
                         const SizedBox(height: 32),
                       ],
-                      
+
                       // Title for analytics
                       Text(
                         'Premium Analytics',
@@ -80,27 +80,30 @@ class _UsageDashboardScreenState extends State<UsageDashboardScreen> {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      
+
                       // Analytics View (Blurred or Unlocked)
                       Stack(
                         children: [
                           _buildProAnalytics(provider),
-                          
                           if (!provider.isPro)
                             Positioned.fill(
                               child: ClipRect(
                                 child: BackdropFilter(
-                                  filter: ImageFilter.blur(sigmaX: 4.0, sigmaY: 4.0),
+                                  filter: ImageFilter.blur(
+                                      sigmaX: 4.0, sigmaY: 4.0),
                                   child: Container(
                                     decoration: BoxDecoration(
-                                      color: const Color(0xFF0A0A0A).withValues(alpha: 0.4),
+                                      color: const Color(0xFF0A0A0A)
+                                          .withValues(alpha: 0.4),
                                       borderRadius: BorderRadius.circular(24),
                                     ),
                                     child: Center(
                                       child: Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
                                         children: [
-                                          const Icon(Icons.lock_outline, size: 48, color: Colors.white),
+                                          const Icon(Icons.lock_outline,
+                                              size: 48, color: Colors.white),
                                           const SizedBox(height: 16),
                                           Text(
                                             'Unlock Advanced Metrics',
@@ -116,16 +119,23 @@ class _UsageDashboardScreenState extends State<UsageDashboardScreen> {
                                               showModalBottomSheet<void>(
                                                 context: context,
                                                 isScrollControlled: true,
-                                                backgroundColor: Colors.transparent,
-                                                builder: (context) => const PaywallScreen(),
+                                                backgroundColor:
+                                                    Colors.transparent,
+                                                builder: (context) =>
+                                                    const PaywallScreen(),
                                               );
                                             },
                                             style: ElevatedButton.styleFrom(
-                                              backgroundColor: const Color(0xFF00F2FF),
+                                              backgroundColor:
+                                                  const Color(0xFF00F2FF),
                                               foregroundColor: Colors.black87,
-                                              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 32,
+                                                      vertical: 16),
                                               shape: RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.circular(16),
+                                                borderRadius:
+                                                    BorderRadius.circular(16),
                                               ),
                                               elevation: 0,
                                             ),
@@ -204,7 +214,7 @@ class _UsageDashboardScreenState extends State<UsageDashboardScreen> {
 
   Widget _buildProAnalytics(TodoProvider provider) {
     final double moneySaved = (provider.totalAITokensUsed / 1000) * 0.002;
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -226,7 +236,8 @@ class _UsageDashboardScreenState extends State<UsageDashboardScreen> {
     );
   }
 
-  Widget _buildStatCard({required String title, required String value, required IconData icon}) {
+  Widget _buildStatCard(
+      {required String title, required String value, required IconData icon}) {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -277,7 +288,7 @@ class _UsageDashboardScreenState extends State<UsageDashboardScreen> {
     // Generate data for fl_chart
     final List<FlSpot> spots = [];
     final List<String> dates = dailyUsage.keys.toList().reversed.toList();
-    
+
     for (int i = 0; i < dates.length; i++) {
       spots.add(FlSpot(i.toDouble(), dailyUsage[dates[i]]!.toDouble()));
     }
@@ -313,13 +324,17 @@ class _UsageDashboardScreenState extends State<UsageDashboardScreen> {
                     LineChartData(
                       gridData: const FlGridData(show: false),
                       titlesData: const FlTitlesData(
-                        rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                        topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                        bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)), 
+                        rightTitles: AxisTitles(
+                            sideTitles: SideTitles(showTitles: false)),
+                        topTitles: AxisTitles(
+                            sideTitles: SideTitles(showTitles: false)),
+                        bottomTitles: AxisTitles(
+                            sideTitles: SideTitles(showTitles: false)),
                       ),
                       borderData: FlBorderData(show: false),
                       minX: 0,
-                      maxX: spots.length > 1 ? (spots.length - 1).toDouble() : 1,
+                      maxX:
+                          spots.length > 1 ? (spots.length - 1).toDouble() : 1,
                       minY: 0,
                       lineBarsData: [
                         LineChartBarData(
@@ -331,7 +346,8 @@ class _UsageDashboardScreenState extends State<UsageDashboardScreen> {
                           dotData: const FlDotData(show: true),
                           belowBarData: BarAreaData(
                             show: true,
-                            color: const Color(0xFF00F2FF).withValues(alpha: 0.1),
+                            color:
+                                const Color(0xFF00F2FF).withValues(alpha: 0.1),
                           ),
                         ),
                       ],
