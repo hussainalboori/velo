@@ -39,11 +39,13 @@ class _PaywallScreenState extends State<PaywallScreen> {
     });
 
     try {
-      final String? currentUserId = Supabase.instance.client.auth.currentUser?.id;
+      final String? currentUserId =
+          Supabase.instance.client.auth.currentUser?.id;
       if (currentUserId == null) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Error: You must be logged in to subscribe.')),
+            const SnackBar(
+                content: Text('Error: You must be logged in to subscribe.')),
           );
           setState(() {
             _isLoading = false;
@@ -59,18 +61,19 @@ class _PaywallScreenState extends State<PaywallScreen> {
         final Package package = offerings.current!.availablePackages.first;
         final PurchaseResult purchaseResult =
             await Purchases.purchasePackage(package);
-        
+
         // Purchase was successful natively if no exception was thrown above.
-        debugPrint('Purchase successful locally. Waiting for webhook... entitlements: ${purchaseResult.customerInfo.entitlements.all.keys}');
+        debugPrint(
+            'Purchase successful locally. Waiting for webhook... entitlements: ${purchaseResult.customerInfo.entitlements.all.keys}');
 
         if (mounted) {
           setState(() {
             _isFinalizing = true;
           });
           final TodoProvider provider = context.read<TodoProvider>();
-          
+
           final bool isSynced = await provider.waitForProStatus();
-          
+
           if (mounted) {
             Navigator.of(context).pop();
             if (isSynced) {
@@ -79,7 +82,9 @@ class _PaywallScreenState extends State<PaywallScreen> {
               );
             } else {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Your Pro status is being activated. It may take a moment to reflect.')),
+                const SnackBar(
+                    content: Text(
+                        'Your Pro status is being activated. It may take a moment to reflect.')),
               );
             }
           }
@@ -93,8 +98,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
         }
       }
     } on PlatformException catch (e) {
-      final PurchasesErrorCode errorCode =
-          PurchasesErrorHelper.getErrorCode(e);
+      final PurchasesErrorCode errorCode = PurchasesErrorHelper.getErrorCode(e);
       if (errorCode != PurchasesErrorCode.purchaseCancelledError) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -149,7 +153,8 @@ class _PaywallScreenState extends State<PaywallScreen> {
                 ),
                 IconButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  icon: const Icon(Icons.close, color: Color(0xFFA0AAB2)), // Light Slate
+                  icon: const Icon(Icons.close,
+                      color: Color(0xFFA0AAB2)), // Light Slate
                 ),
               ],
             ),
@@ -216,7 +221,9 @@ class _PaywallScreenState extends State<PaywallScreen> {
             const SizedBox(height: 16),
             Consumer<TodoProvider>(
               builder: (context, provider, child) {
-                if (!AppConstants.showAds || provider.isPro || provider.adsWatchedToday >= 3) {
+                if (!AppConstants.showAds ||
+                    provider.isPro ||
+                    provider.adsWatchedToday >= 3) {
                   return const SizedBox.shrink();
                 }
 
@@ -230,10 +237,13 @@ class _PaywallScreenState extends State<PaywallScreen> {
                           // Show ad overlay
                           _adManager.showAd(
                             onReward: () async {
-                              final success = await context.read<TodoProvider>().earnAdReward();
+                              final success = await context
+                                  .read<TodoProvider>()
+                                  .earnAdReward();
                               if (success && mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('1 AI Task Unlocked!')),
+                                  const SnackBar(
+                                      content: Text('1 AI Task Unlocked!')),
                                 );
                                 if (widget.onRewardSuccess != null) {
                                   widget.onRewardSuccess!();
@@ -292,10 +302,12 @@ class _PaywallScreenState extends State<PaywallScreen> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: const Color(0xFF00F2FF).withOpacity(0.1), // Velocity Teal backing
+              color: const Color(0xFF00F2FF)
+                  .withOpacity(0.1), // Velocity Teal backing
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(icon, color: const Color(0xFF00F2FF), size: 24), // Velocity Teal icon
+            child: Icon(icon,
+                color: const Color(0xFF00F2FF), size: 24), // Velocity Teal icon
           ),
           const SizedBox(width: 16),
           Expanded(

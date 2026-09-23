@@ -6,7 +6,8 @@ void main() {
     test('default categories are present', () {
       expect(AppConstants.defaultCategories, isA<List<String>>());
       expect(AppConstants.defaultCategories, hasLength(3));
-      expect(AppConstants.defaultCategories, containsAll(['personal', 'work', 'study']));
+      expect(AppConstants.defaultCategories,
+          containsAll(['personal', 'work', 'study']));
     });
 
     test('ad config falls back to known safe test IDs', () {

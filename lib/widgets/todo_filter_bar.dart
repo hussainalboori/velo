@@ -66,8 +66,6 @@ class _FilterChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
-
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -90,7 +88,9 @@ class _FilterChip extends StatelessWidget {
               Text(
                 label,
                 style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      color: selected ? const Color(0xFF0A0A0A) : const Color(0xFFB3B3B3),
+                      color: selected
+                          ? const Color(0xFF0A0A0A)
+                          : const Color(0xFFB3B3B3),
                       fontWeight: FontWeight.w700,
                     ),
               ),
@@ -108,8 +108,9 @@ class _FilterChip extends StatelessWidget {
                 child: Text(
                   '$count',
                   style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                        color:
-                            selected ? const Color(0xFF0A0A0A) : const Color(0xFFB3B3B3),
+                        color: selected
+                            ? const Color(0xFF0A0A0A)
+                            : const Color(0xFFB3B3B3),
                         fontWeight: FontWeight.w700,
                       ),
                 ),

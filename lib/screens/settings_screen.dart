@@ -23,7 +23,8 @@ class SettingsScreen extends StatelessWidget {
                   child: const Text('Cancel'),
                 ),
                 FilledButton(
-                  style: FilledButton.styleFrom(backgroundColor: Colors.red.shade600),
+                  style: FilledButton.styleFrom(
+                      backgroundColor: Colors.red.shade600),
                   onPressed: () => Navigator.of(dialogContext).pop(true),
                   child: const Text('Log Out'),
                 ),
@@ -109,7 +110,9 @@ class SettingsScreen extends StatelessWidget {
                   subtitle: Text(
                     isPro ? 'Pro Subscription' : 'Free Tier',
                     style: GoogleFonts.inter(
-                      color: isPro ? const Color(0xFFFFD700) : const Color(0xFFB3B3B3),
+                      color: isPro
+                          ? const Color(0xFFFFD700)
+                          : const Color(0xFFB3B3B3),
                       fontWeight: isPro ? FontWeight.bold : FontWeight.normal,
                     ),
                   ),
@@ -149,7 +152,8 @@ class SettingsScreen extends StatelessWidget {
                   color: const Color(0xFF2E2E2E),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Icon(Icons.analytics_outlined, color: Color(0xFF00F2FF), size: 20),
+                child: const Icon(Icons.analytics_outlined,
+                    color: Color(0xFF00F2FF), size: 20),
               ),
               title: Text(
                 'AI Usage Dashboard',
@@ -158,7 +162,8 @@ class SettingsScreen extends StatelessWidget {
                   color: Colors.white,
                 ),
               ),
-              trailing: const Icon(Icons.chevron_right, color: Color(0xFF9CA3AF)),
+              trailing:
+                  const Icon(Icons.chevron_right, color: Color(0xFF9CA3AF)),
             ),
           ),
           const SizedBox(height: 48),

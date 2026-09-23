@@ -42,10 +42,11 @@ class RewardedAdManager {
     }
 
     _isShowing = true;
-    
+
     // Set up full screen callbacks. We invoke onClosed exactly once.
     _rewardedAd!.fullScreenContentCallback = FullScreenContentCallback(
-      onAdShowedFullScreenContent: (ad) => debugPrint('Ad showed fullscreen content.'),
+      onAdShowedFullScreenContent: (ad) =>
+          debugPrint('Ad showed fullscreen content.'),
       onAdDismissedFullScreenContent: (ad) {
         debugPrint('Ad dismissed fullscreen content.');
         ad.dispose();

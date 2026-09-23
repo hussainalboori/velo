@@ -243,7 +243,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                             );
                           },
-                          icon: const Icon(Icons.settings_outlined, color: Color(0xFF00F2FF)),
+                          icon: const Icon(Icons.settings_outlined,
+                              color: Color(0xFF00F2FF)),
                           tooltip: 'Settings',
                         ),
                       ],
@@ -298,42 +299,65 @@ class _HomeScreenState extends State<HomeScreen> {
                                       onToggle: provider.toggleCompletion,
                                       onDelete: provider.deleteTodo,
                                       onGenerateAI: (String id) async {
-                                        final taskItem = context.read<TodoProvider>().taskById(id);
+                                        final taskItem = context
+                                            .read<TodoProvider>()
+                                            .taskById(id);
                                         if (taskItem == null) return;
-                                        
-                                        _showSnackBar(context, 'AI is thinking...');
+
+                                        _showSnackBar(
+                                            context, 'AI is thinking...');
                                         try {
-                                          await TaskService().generateSubtasks(id, taskItem.title);
+                                          await TaskService().generateSubtasks(
+                                              id, taskItem.title);
                                           if (context.mounted) {
-                                            _showSnackBar(context, 'Sub-tasks generated!');
-                                            await context.read<TodoProvider>().reloadSubTasks(id);
+                                            _showSnackBar(context,
+                                                'Sub-tasks generated!');
+                                            await context
+                                                .read<TodoProvider>()
+                                                .reloadSubTasks(id);
                                           }
                                         } catch (e) {
                                           debugPrint('AI Error: $e');
                                           if (context.mounted) {
-                                            if (e.toString().contains('OUT_OF_TOKENS')) {
+                                            if (e
+                                                .toString()
+                                                .contains('OUT_OF_TOKENS')) {
                                               showModalBottomSheet<void>(
                                                 context: context,
                                                 isScrollControlled: true,
-                                                backgroundColor: Colors.transparent,
-                                                builder: (sheetContext) => PaywallScreen(
+                                                backgroundColor:
+                                                    Colors.transparent,
+                                                builder: (sheetContext) =>
+                                                    PaywallScreen(
                                                   onRewardSuccess: () async {
-                                                    _showSnackBar(context, 'Generating your reward...');
-                                                    await Future<void>.delayed(const Duration(milliseconds: 500));
+                                                    _showSnackBar(context,
+                                                        'Generating your reward...');
+                                                    await Future<void>.delayed(
+                                                        const Duration(
+                                                            milliseconds: 500));
                                                     try {
-                                                      await TaskService().generateSubtasks(id, taskItem.title);
+                                                      await TaskService()
+                                                          .generateSubtasks(id,
+                                                              taskItem.title);
                                                       if (context.mounted) {
-                                                        _showSnackBar(context, 'Sub-tasks generated!');
-                                                        await context.read<TodoProvider>().reloadSubTasks(id);
+                                                        _showSnackBar(context,
+                                                            'Sub-tasks generated!');
+                                                        await context
+                                                            .read<
+                                                                TodoProvider>()
+                                                            .reloadSubTasks(id);
                                                       }
                                                     } catch (e) {
-                                                      if (context.mounted) _showSnackBar(context, 'Error: $e');
+                                                      if (context.mounted)
+                                                        _showSnackBar(context,
+                                                            'Error: $e');
                                                     }
                                                   },
                                                 ),
                                               );
                                             } else {
-                                              _showSnackBar(context, 'Error: $e');
+                                              _showSnackBar(
+                                                  context, 'Error: $e');
                                             }
                                           }
                                         }
@@ -350,8 +374,8 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: !context.watch<TodoProvider>().isPro 
-          ? const SmartBannerAd() 
+      bottomNavigationBar: !context.watch<TodoProvider>().isPro
+          ? const SmartBannerAd()
           : const SizedBox.shrink(),
     );
   }

@@ -100,7 +100,8 @@ class AppStrings {
   static const String descriptionSaveError = 'Description is too long.';
 
   static const String emptyTitle = 'Nothing queued yet';
-  static const String emptyMessage = 'Velo: Accelerate your productivity with AI.';
+  static const String emptyMessage =
+      'Velo: Accelerate your productivity with AI.';
   static const String emptyActiveTitle = "You're all caught up!";
   static const String emptyActiveMessage =
       'Take a break, or add a new task to keep moving.';
