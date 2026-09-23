@@ -2,7 +2,10 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:to_do_flutter/models/task.dart';
 
 class TaskService {
-  final SupabaseClient _client = Supabase.instance.client;
+  final SupabaseClient _client;
+
+  TaskService({SupabaseClient? client})
+      : _client = client ?? Supabase.instance.client;
 
   /// Returns only top-level todos for the current user.
   ///
@@ -72,9 +75,19 @@ class TaskService {
 
   /// Call Edge Function to generate subtasks
   Future<void> generateSubtasks(String taskId, String taskTitle) async {
+    final cleanTaskId = taskId.trim();
+    final cleanTaskTitle = taskTitle.trim();
+
+    if (cleanTaskId.isEmpty) {
+      throw ArgumentError('taskId cannot be empty');
+    }
+    if (cleanTaskTitle.isEmpty) {
+      throw ArgumentError('taskTitle cannot be empty');
+    }
+
     await _client.functions.invoke(
       'generate-subtasks',
-      body: {'taskId': taskId, 'taskTitle': taskTitle},
+      body: {'taskId': cleanTaskId, 'taskTitle': cleanTaskTitle},
     );
   }
 }
