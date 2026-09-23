@@ -2,7 +2,10 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:to_do_flutter/models/task.dart';
 
 class TaskService {
-  final SupabaseClient _client = Supabase.instance.client;
+  final SupabaseClient _client;
+
+  TaskService({SupabaseClient? client})
+      : _client = client ?? Supabase.instance.client;
 
   /// Returns only top-level todos for the current user.
   ///
