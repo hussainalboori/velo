@@ -4,14 +4,11 @@ import 'package:to_do_flutter/models/task.dart';
 class TaskService {
   final SupabaseClient _client = Supabase.instance.client;
 
-  /// Returns only top-level todos for the current user.
-  ///
-  /// Subtasks are intentionally loaded separately so they can be expanded on demand. This avoids a heavy
-  /// recursive payload and keeps the home screen snappy while still supporting parent-task details.
+  /// Returns top-level todos for the current user, joined with their subtasks in a single query.
   Future<List<Task>> getTasks() async {
     final response = await _client
         .from('tasks')
-        .select()
+        .select('*, subTasks:tasks!parent_id(*)')
         .isFilter('parent_id', null)
         .order('created_at', ascending: false);
 

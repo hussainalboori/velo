@@ -245,11 +245,6 @@ class TodoProvider extends ChangeNotifier {
       await refreshProfile();
 
       final tasks = await _taskService.getTasks();
-      // Fetch subtasks for each task. In a real app we'd do a joined query.
-      for (int i = 0; i < tasks.length; i++) {
-        final subTasks = await _taskService.getSubTasks(tasks[i].id!);
-        tasks[i] = tasks[i].copyWith(subTasks: subTasks);
-      }
       
       _items.clear();
       _items.addAll(tasks);
