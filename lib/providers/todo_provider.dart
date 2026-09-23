@@ -8,14 +8,19 @@ import 'package:to_do_flutter/models/task.dart';
 import 'package:to_do_flutter/services/task_service.dart';
 
 enum TodoFilter { all, active, completed }
+
 enum RemoveCategoryResult { removed, lastCategory, notFound }
 
 class TodoProvider extends ChangeNotifier {
   final TaskService _taskService = TaskService();
-  
+
   final List<Task> _items = <Task>[];
-  final List<String> _categories = List<String>.from(AppConstants.defaultCategories);
+  final List<String> _categories =
+      List<String>.from(AppConstants.defaultCategories);
   final Set<String> _busyItemIds = <String>{};
+
+  int _activeCount = 0;
+  int _completedCount = 0;
 
   bool _isLoading = true;
   bool _isAdding = false;
@@ -24,8 +29,10 @@ class TodoProvider extends ChangeNotifier {
   String _draftCategory = AppConstants.defaultCategories.first;
 
   UnmodifiableListView<Task> get items => UnmodifiableListView<Task>(_items);
-  UnmodifiableListView<String> get categories => UnmodifiableListView<String>(_categories);
-  UnmodifiableSetView<String> get busyItemIds => UnmodifiableSetView<String>(_busyItemIds);
+  UnmodifiableListView<String> get categories =>
+      UnmodifiableListView<String>(_categories);
+  UnmodifiableSetView<String> get busyItemIds =>
+      UnmodifiableSetView<String>(_busyItemIds);
 
   bool get isLoading => _isLoading;
   bool get isAdding => _isAdding;
@@ -33,8 +40,22 @@ class TodoProvider extends ChangeNotifier {
   TodoFilter get selectedFilter => _selectedFilter;
   String get draftCategory => _draftCategory;
 
-  int get activeCount => _items.where((Task item) => !item.isCompleted).length;
-  int get completedCount => _items.where((Task item) => item.isCompleted).length;
+  int get activeCount => _activeCount;
+  int get completedCount => _completedCount;
+
+  void _updateCounts() {
+    int active = 0;
+    int completed = 0;
+    for (int i = 0; i < _items.length; i++) {
+      if (_items[i].isCompleted) {
+        completed++;
+      } else {
+        active++;
+      }
+    }
+    _activeCount = active;
+    _completedCount = completed;
+  }
 
   List<Task> get filteredItems {
     switch (_selectedFilter) {
@@ -74,6 +95,7 @@ class TodoProvider extends ChangeNotifier {
 
   void clearAll() {
     _items.clear();
+    _updateCounts();
     _categories.clear();
     _categories.addAll(AppConstants.defaultCategories);
     _busyItemIds.clear();
@@ -97,19 +119,19 @@ class TodoProvider extends ChangeNotifier {
     try {
       final user = Supabase.instance.client.auth.currentUser;
       if (user == null) return;
-      
+
       final data = await Supabase.instance.client
           .from('profiles')
           .select('tier, tokens_used, ads_watched_today, last_ad_date')
           .eq('id', user.id)
           .single();
-          
+
       debugPrint('Supabase profiles payload: $data');
-          
+
       _isPro = data['tier'] == 'pro';
       _tokensUsed = data['tokens_used'] ?? 0;
       _adsWatchedToday = data['ads_watched_today'] ?? 0;
-      
+
       final rawDate = data['last_ad_date'];
       _lastAdDate = rawDate != null ? DateTime.parse(rawDate) : null;
 
@@ -182,10 +204,10 @@ class TodoProvider extends ChangeNotifier {
 
       // Securely decrement via Postgres function securely bypassing read-only RLS limitations
       await Supabase.instance.client.rpc('decrement_user_tokens');
-      
+
       // Sync local state completely with backend
       await refreshProfile();
-      
+
       return true;
     } catch (e) {
       debugPrint('Error earning ad reward: $e');
@@ -206,7 +228,9 @@ class TodoProvider extends ChangeNotifier {
 
   bool addCategory(String rawName) {
     final String normalized = CategoryCopy.normalize(rawName);
-    if (normalized.isEmpty || normalized.length > AppConstants.maxCategoryLength || _categories.contains(normalized)) {
+    if (normalized.isEmpty ||
+        normalized.length > AppConstants.maxCategoryLength ||
+        _categories.contains(normalized)) {
       return false;
     }
     _categories.add(normalized);
@@ -250,9 +274,10 @@ class TodoProvider extends ChangeNotifier {
         final subTasks = await _taskService.getSubTasks(tasks[i].id!);
         tasks[i] = tasks[i].copyWith(subTasks: subTasks);
       }
-      
+
       _items.clear();
       _items.addAll(tasks);
+      _updateCounts();
 
       // Collect any unique categories from the server
       for (final task in tasks) {
@@ -266,6 +291,7 @@ class TodoProvider extends ChangeNotifier {
       }
     } catch (_) {
       _items.clear();
+      _updateCounts();
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -276,7 +302,8 @@ class TodoProvider extends ChangeNotifier {
     if (_isAdding) return false;
 
     final String cleanedText = text.trim();
-    if (cleanedText.isEmpty || cleanedText.length > AppConstants.maxTodoLength) return false;
+    if (cleanedText.isEmpty || cleanedText.length > AppConstants.maxTodoLength)
+      return false;
 
     _isAdding = true;
     notifyListeners();
@@ -288,6 +315,7 @@ class TodoProvider extends ChangeNotifier {
       );
       final Task added = await _taskService.addTask(draft);
       _items.insert(0, added);
+      _updateCounts();
     } catch (_) {
       _isAdding = false;
       notifyListeners();
@@ -309,9 +337,11 @@ class TodoProvider extends ChangeNotifier {
 
     try {
       final bool newStatus = !_items[index].isCompleted;
-      final Task updated = await _taskService.updateTaskCompletion(id, newStatus);
+      final Task updated =
+          await _taskService.updateTaskCompletion(id, newStatus);
       // Keep existing subTasks
       _items[index] = updated.copyWith(subTasks: _items[index].subTasks);
+      _updateCounts();
     } catch (_) {}
 
     _busyItemIds.remove(id);
@@ -325,6 +355,7 @@ class TodoProvider extends ChangeNotifier {
     try {
       final subTasks = await _taskService.getSubTasks(taskId);
       _items[index] = _items[index].copyWith(subTasks: subTasks);
+      _updateCounts();
       notifyListeners();
     } catch (e) {
       debugPrint('Error reloading subtasks: $e');
@@ -339,6 +370,7 @@ class TodoProvider extends ChangeNotifier {
     try {
       await _taskService.deleteTask(id);
       _items.removeWhere((Task item) => item.id == id);
+      _updateCounts();
     } catch (e) {
       debugPrint('Error deleting todo: $e');
     }
@@ -357,11 +389,13 @@ class TodoProvider extends ChangeNotifier {
     if (index == -1) return false;
 
     final String cleanTitle = title.trim();
-    if (cleanTitle.isEmpty || cleanTitle.length > AppConstants.maxTodoLength) return false;
+    if (cleanTitle.isEmpty || cleanTitle.length > AppConstants.maxTodoLength)
+      return false;
     if (description.length > AppConstants.maxDescriptionLength) return false;
 
     final String cleanCategory = CategoryCopy.normalize(category);
-    if (cleanCategory.isEmpty || !_categories.contains(cleanCategory)) return false;
+    if (cleanCategory.isEmpty || !_categories.contains(cleanCategory))
+      return false;
 
     try {
       final updatedTask = _items[index].copyWith(
@@ -371,6 +405,7 @@ class TodoProvider extends ChangeNotifier {
       );
       final savedTask = await _taskService.updateTask(updatedTask);
       _items[index] = savedTask.copyWith(subTasks: _items[index].subTasks);
+      _updateCounts();
       notifyListeners();
       return true;
     } catch (_) {
@@ -386,14 +421,17 @@ class TodoProvider extends ChangeNotifier {
     if (index == -1) return false;
 
     final String cleanTitle = title.trim();
-    if (cleanTitle.isEmpty || cleanTitle.length > AppConstants.maxSubTaskLength) return false;
+    if (cleanTitle.isEmpty || cleanTitle.length > AppConstants.maxSubTaskLength)
+      return false;
 
     try {
       final draft = Task(title: cleanTitle, parentId: taskId);
       final added = await _taskService.addTask(draft);
-      
-      final List<Task> updatedSubTasks = List<Task>.from(_items[index].subTasks)..add(added);
+
+      final List<Task> updatedSubTasks = List<Task>.from(_items[index].subTasks)
+        ..add(added);
       _items[index] = _items[index].copyWith(subTasks: updatedSubTasks);
+      _updateCounts();
       notifyListeners();
       return true;
     } catch (_) {
@@ -409,14 +447,17 @@ class TodoProvider extends ChangeNotifier {
     if (index == -1) return false;
 
     final List<Task> updatedSubTasks = List<Task>.from(_items[index].subTasks);
-    final int subIndex = updatedSubTasks.indexWhere((Task sub) => sub.id == subTaskId);
+    final int subIndex =
+        updatedSubTasks.indexWhere((Task sub) => sub.id == subTaskId);
     if (subIndex == -1) return false;
 
     try {
       final newStatus = !updatedSubTasks[subIndex].isCompleted;
-      final updated = await _taskService.updateTaskCompletion(subTaskId, newStatus);
+      final updated =
+          await _taskService.updateTaskCompletion(subTaskId, newStatus);
       updatedSubTasks[subIndex] = updated;
       _items[index] = _items[index].copyWith(subTasks: updatedSubTasks);
+      _updateCounts();
       notifyListeners();
       return true;
     } catch (_) {
@@ -436,6 +477,7 @@ class TodoProvider extends ChangeNotifier {
       final List<Task> updatedSubTasks = List<Task>.from(_items[index].subTasks)
         ..removeWhere((Task sub) => sub.id == subTaskId);
       _items[index] = _items[index].copyWith(subTasks: updatedSubTasks);
+      _updateCounts();
       notifyListeners();
       return true;
     } catch (e) {
