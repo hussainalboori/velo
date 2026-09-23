@@ -1,8 +1,12 @@
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:to_do_flutter/models/task.dart';
 
 class TaskService {
-  final SupabaseClient _client = Supabase.instance.client;
+  final SupabaseClient _client;
+
+  TaskService({SupabaseClient? client})
+      : _client = client ?? Supabase.instance.client;
 
   /// Returns only top-level todos for the current user.
   ///
@@ -63,11 +67,16 @@ class TaskService {
 
   /// Delete a task via its ID
   Future<void> deleteTask(String id) async {
-    // Delete any AI usage logs referencing this task first
-    await _client.from('ai_usage_logs').delete().eq('task_id', id);
-    // Delete any subtasks first to avoid foreign key constraint violations
-    await _client.from('tasks').delete().eq('parent_id', id);
-    await _client.from('tasks').delete().eq('id', id);
+    try {
+      // Delete any AI usage logs referencing this task first
+      await _client.from('ai_usage_logs').delete().eq('task_id', id);
+      // Delete any subtasks first to avoid foreign key constraint violations
+      await _client.from('tasks').delete().eq('parent_id', id);
+      await _client.from('tasks').delete().eq('id', id);
+    } catch (e) {
+      debugPrint('Error deleting task $id: $e');
+      rethrow;
+    }
   }
 
   /// Call Edge Function to generate subtasks
